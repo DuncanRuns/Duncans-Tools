@@ -1,0 +1,19 @@
+{
+  "duncanstools.keycategory": "Duncan's Tools",
+
+  "duncanstools.key.openconfig": "Open Config",
+
+  "duncanstools.key.spamlever": "Bedrock Lever - Spam Lever",
+
+  "duncanstools.key.toggleclicker": "Toggle Farm Clicker",
+  "duncanstools.key.togglealignmentlock": "Toggle Alignment Locker",
+
+  "duncanstools.key.portalcoords": "Get Portal Coords",
+
+  "duncanstools.clickerenabled": "AFK Clicking Lock Enabled",
+  "duncanstools.clickerdisabled": "AFK Clicking Lock Disabled",
+
+  "duncanstools.alignmentlockenabled": "Alignment Lock has been enabled",
+  "duncanstools.alignmentlockdisabled": "Alignment Lock has been disabled",
+  "duncanstools.setalignmentsplit": "Alignment split set to %s (%s°)"
+}

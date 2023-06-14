@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "duncans-tools",
+  "version": "${version}",
+  "name": "Duncan's Tools",
+  "description": "Various tools for technical survival worlds.",
+  "authors": [
+    "DuncanRuns"
+  ],
+  "contact": {
+    "sources": "https://github.com/DuncanRuns/Duncans-Tools",
+    "issues": "https://github.com/DuncanRuns/Duncans-Tools/issues"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/duncans-tools/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "me.duncanruns.duncanstools.DuncansTools"
+    ],
+    "modmenu": [
+      "me.duncanruns.duncanstools.config.DuncansToolsConfig"
+    ]
+  },
+  "mixins": [
+    "gamma-override.mixins.json",
+    "craft-refill.mixins.json",
+    "farm-clicker.mixins.json",
+    "alignment-locker.mixins.json",
+    "librarian-book-helper.mixins.json"
+  ],
+  "accessWidener": "duncans-tools.accesswidener",
+  "depends": {
+    "fabric-api": "*",
+    "yet_another_config_lib_v3": "*"
+  }
+}
