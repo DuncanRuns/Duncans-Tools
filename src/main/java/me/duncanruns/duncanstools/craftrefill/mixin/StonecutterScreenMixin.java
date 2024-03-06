@@ -5,17 +5,21 @@ import me.duncanruns.duncanstools.craftrefill.StonecuttingRecipeInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.StonecutterScreen;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.recipe.StonecuttingRecipe;
 import net.minecraft.screen.StonecutterScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+
+import java.util.List;
 
 @Mixin(StonecutterScreen.class)
 public abstract class StonecutterScreenMixin extends HandledScreen<StonecutterScreenHandler> {
@@ -23,10 +27,12 @@ public abstract class StonecutterScreenMixin extends HandledScreen<StonecutterSc
         super(handler, inventory, title);
     }
 
-    @Redirect(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;clickButton(II)V"))
-    private void onStoneCutterRecipeSelect(ClientPlayerInteractionManager instance, int syncId, int buttonId) {
-        this.client.interactionManager.clickButton(syncId, buttonId);
-        CraftRefill.lastSCRecipe = new StonecuttingRecipeInfo(getScreenHandler().input.getStack(0).getItem(), buttonId, handler.getAvailableRecipes().get(buttonId).value().getResult(null).getItem());
+    @ModifyArg(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;clickButton(II)V"), index = 1)
+    private int getButtonId(int buttonId) {
+        List<RecipeEntry<StonecuttingRecipe>> availableRecipes = handler.getAvailableRecipes();
+        if (buttonId < availableRecipes.size())
+            CraftRefill.lastSCRecipe = new StonecuttingRecipeInfo(getScreenHandler().input.getStack(0).getItem(), buttonId, availableRecipes.get(buttonId).value().getResult(null).getItem());
+        return buttonId;
     }
 
     @Override
@@ -69,12 +75,14 @@ public abstract class StonecutterScreenMixin extends HandledScreen<StonecutterSc
         }
     }
 
+    @Unique
     private void fillRecipe() {
         if (fillSlot()) {
             selectRecipe();
         }
     }
 
+    @Unique
     private boolean fillSlot() {
         // If there is already the item in there, skip
         if (CraftRefill.lastSCRecipe.inputItem().equals(getScreenHandler().input.getStack(0).getItem())) {
@@ -107,6 +115,7 @@ public abstract class StonecutterScreenMixin extends HandledScreen<StonecutterSc
         return true;
     }
 
+    @Unique
     private void selectRecipe() {
         client.interactionManager.clickButton(this.handler.syncId, CraftRefill.lastSCRecipe.buttonId());
     }
