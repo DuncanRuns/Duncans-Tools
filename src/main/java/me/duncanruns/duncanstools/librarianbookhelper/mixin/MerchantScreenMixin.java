@@ -16,6 +16,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.village.TradeOffer;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -26,7 +27,7 @@ import java.util.List;
 @Mixin(MerchantScreen.class)
 public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHandler> {
 
-    private boolean dinged = false;
+    @Unique private boolean dinged = false;
 
     public MerchantScreenMixin(MerchantScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -68,6 +69,7 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
         context.drawTooltip(textRenderer, text, textX - 16, y + 17);
     }
 
+    @Unique
     private void playDingIfNeverDinged() {
         if (dinged) return;
         dinged = true;

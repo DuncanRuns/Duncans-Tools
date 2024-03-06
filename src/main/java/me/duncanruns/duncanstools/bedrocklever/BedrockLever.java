@@ -3,9 +3,11 @@ package me.duncanruns.duncanstools.bedrocklever;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -35,13 +37,25 @@ public class BedrockLever {
             if (client.crosshairTarget == null || !client.crosshairTarget.getType().equals(HitResult.Type.BLOCK))
                 return;
             // Check block is lever
-            if (!client.world.getBlockState(((BlockHitResult) client.crosshairTarget).getBlockPos()).getBlock().equals(Blocks.LEVER))
-                return;
+            Block targetedBlockType = client.world.getBlockState(((BlockHitResult) client.crosshairTarget).getBlockPos()).getBlock();
 
-            for (int i = 0; i < 64; i++) {
-                client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, (BlockHitResult) client.crosshairTarget);
+            boolean validUsage = targetedBlockType == Blocks.LEVER;
+            boolean isPistonUsage = false;
+            if (!validUsage && targetedBlockType == Blocks.OBSIDIAN) {
+                validUsage = client.player.getMainHandStack().isOf(Items.PISTON) || client.player.getMainHandStack().isOf(Items.STICKY_PISTON);
+                isPistonUsage = true;
             }
-            client.player.swingHand(Hand.MAIN_HAND);
+            if (!validUsage) {
+                return;
+            }
+
+            if(isPistonUsage){
+                client.doItemUse();
+            }else {
+                for (int i = 0; i < 64; i++) {
+                    client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, (BlockHitResult) client.crosshairTarget);
+                }
+            }
         });
     }
 }

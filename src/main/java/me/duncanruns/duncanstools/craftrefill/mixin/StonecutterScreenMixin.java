@@ -5,6 +5,7 @@ import me.duncanruns.duncanstools.craftrefill.StonecuttingRecipeInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.StonecutterScreen;
+import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.StonecutterScreenHandler;
@@ -14,9 +15,7 @@ import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(StonecutterScreen.class)
 public abstract class StonecutterScreenMixin extends HandledScreen<StonecutterScreenHandler> {
@@ -24,12 +23,10 @@ public abstract class StonecutterScreenMixin extends HandledScreen<StonecutterSc
         super(handler, inventory, title);
     }
 
-    @Inject(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;clickButton(II)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void craftRefill_onRecipeSelectMixin(double mouseX, double mouseY, int buttonA, CallbackInfoReturnable<Boolean> cir, int button, int i, int j, int k, int l, double d, double e) {
-        if (k >= handler.getAvailableRecipeCount()) {
-            return;
-        }
-        CraftRefill.lastSCRecipe = new StonecuttingRecipeInfo(getScreenHandler().input.getStack(0).getItem(), k, handler.getAvailableRecipes().get(k).getOutput(null).getItem());
+    @Redirect(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;clickButton(II)V"))
+    private void onStoneCutterRecipeSelect(ClientPlayerInteractionManager instance, int syncId, int buttonId) {
+        this.client.interactionManager.clickButton(syncId, buttonId);
+        CraftRefill.lastSCRecipe = new StonecuttingRecipeInfo(getScreenHandler().input.getStack(0).getItem(), buttonId, handler.getAvailableRecipes().get(buttonId).value().getResult(null).getItem());
     }
 
     @Override

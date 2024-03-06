@@ -6,7 +6,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class FindingTradeScreen extends Screen {
-    private static final Identifier TEXTURE = new Identifier("textures/gui/container/villager2.png");
+    private static final Identifier TEXTURE = new Identifier("textures/gui/container/villager.png");
 
     protected FindingTradeScreen() {
         super(Text.of("Finding Enchanted Book..."));
@@ -14,7 +14,6 @@ public class FindingTradeScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderBackground(context);
         super.render(context, mouseX, mouseY, delta);
         int i = (this.width - 276) / 2;
         int j = (this.height - 166) / 2;

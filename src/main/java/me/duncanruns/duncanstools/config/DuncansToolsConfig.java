@@ -9,6 +9,7 @@ import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.config.ConfigEntry;
 import dev.isxander.yacl3.config.GsonConfigInstance;
+import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import me.duncanruns.duncanstools.DuncansTools;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -22,34 +23,34 @@ public class DuncansToolsConfig implements ModMenuApi {
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve(DuncansTools.MOD_ID + ".json");
     private static final GsonConfigInstance<DuncansToolsConfig> CONFIG_INSTANCE = GsonConfigInstance.createBuilder(DuncansToolsConfig.class).setPath(CONFIG_PATH).build();
 
-    @ConfigEntry
+    @SerialEntry
     public boolean alignmentLockerEnabled = false;
-    @ConfigEntry
+    @SerialEntry
     public boolean bedrockLeverEnabled = false;
-    @ConfigEntry
+    @SerialEntry
     public boolean bookTradeFinderEnabled = false;
-    @ConfigEntry
+    @SerialEntry
     public boolean craftRefillEnabled = false;
-    @ConfigEntry
+    @SerialEntry
     public boolean farmClickerEnabled = false;
-    @ConfigEntry
+    @SerialEntry
     public boolean gammaOverrideEnabled = false;
-    @ConfigEntry
+    @SerialEntry
     public boolean librarianBookHelperEnabled = false;
-    @ConfigEntry
+    @SerialEntry
     public boolean portalCoordsEnabled = false;
 
-    @ConfigEntry
+    @SerialEntry
     public int clickerInterval = 30;
-    @ConfigEntry
+    @SerialEntry
     public boolean clickerDoUse = false;
-    @ConfigEntry
+    @SerialEntry
     public int alignmentLockerSplit = 8;
-    @ConfigEntry
+    @SerialEntry
     public double brightGamma = 5d;
-    @ConfigEntry
+    @SerialEntry
     public String librarianHighlight = "";
-    @ConfigEntry
+    @SerialEntry
     public boolean librarianHighlightDing = true;
 
     public static void initialize() {
