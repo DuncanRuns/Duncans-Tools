@@ -2,10 +2,10 @@ package me.duncanruns.duncanstools;
 
 import me.duncanruns.duncanstools.alignmentlocker.AlignmentLocker;
 import me.duncanruns.duncanstools.bedrocklever.BedrockLever;
+import me.duncanruns.duncanstools.booktradefinder.BookTradeFinder;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import me.duncanruns.duncanstools.farmclicker.FarmClicker;
 import me.duncanruns.duncanstools.portalcoords.PortalCoords;
-import me.duncanruns.duncanstools.booktradefinder.BookTradeFinder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;

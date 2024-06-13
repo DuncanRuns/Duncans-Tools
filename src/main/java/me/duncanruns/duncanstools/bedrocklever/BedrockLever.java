@@ -49,9 +49,9 @@ public class BedrockLever {
                 return;
             }
 
-            if(isPistonUsage){
+            if (isPistonUsage) {
                 client.doItemUse();
-            }else {
+            } else {
                 for (int i = 0; i < 64; i++) {
                     client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, (BlockHitResult) client.crosshairTarget);
                 }

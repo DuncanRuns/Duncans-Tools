@@ -1,7 +1,6 @@
 package me.duncanruns.duncanstools.craftrefill;
 
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
-import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeEntry;
 
 public class CraftRefill {

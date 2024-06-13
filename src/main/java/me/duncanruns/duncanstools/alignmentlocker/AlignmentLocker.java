@@ -14,7 +14,7 @@ public class AlignmentLocker {
     public static boolean alignLock = false;
     public static boolean lockKeyWasPressed;
 
-    public static boolean moduleEnabled(){
+    public static boolean moduleEnabled() {
         return DuncansToolsConfig.getInstance().alignmentLockerEnabled;
     }
 

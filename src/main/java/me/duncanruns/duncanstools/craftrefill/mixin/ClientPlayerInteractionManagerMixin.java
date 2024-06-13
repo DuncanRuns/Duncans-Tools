@@ -2,7 +2,6 @@ package me.duncanruns.duncanstools.craftrefill.mixin;
 
 import me.duncanruns.duncanstools.craftrefill.CraftRefill;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
-import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeEntry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
