@@ -11,11 +11,13 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.dimension.DimensionTypes;
 import org.lwjgl.glfw.GLFW;
 
@@ -34,11 +36,13 @@ public class PortalCoords {
         }
 
         boolean isNether;
-        if (world.getDimensionKey().equals(DimensionTypes.THE_NETHER)) {
+
+        RegistryKey<DimensionType> key = world.getDimensionEntry().getKey().get();
+        if (key.equals(DimensionTypes.THE_NETHER)) {
             isNether = true;
         } else {
             isNether = false;
-            if (!world.getDimensionKey().equals(DimensionTypes.OVERWORLD)) {
+            if (!key.equals(DimensionTypes.OVERWORLD)) {
                 player.sendMessage(Text.of("Cannot get portal coordinates as you are not in the nether or the overworld!").copy().styled(style -> style.withColor(Formatting.RED)));
                 return 0;
             }

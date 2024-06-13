@@ -1,11 +1,13 @@
 package me.duncanruns.duncanstools.librarianbookhelper;
 
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ItemEnchantmentsComponent;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
@@ -25,11 +27,21 @@ public class LibrarianBookHelper {
         return false;
     }
 
+    public static int getBookLevel(RegistryEntry<Enchantment> enchantment, ItemStack stack) {
+        ItemEnchantmentsComponent itemEnchantmentsComponent = stack.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT);
+        return itemEnchantmentsComponent.getLevel(enchantment);
+    }
+
     public static boolean isWantedBook(ItemStack stack) {
         if (stack.getItem() != Items.ENCHANTED_BOOK) return false;
-        NbtCompound enchant = EnchantedBookItem.getEnchantmentNbt(stack).getCompound(0);
-        return (EnchantmentHelper.getIdFromNbt(enchant).equals(new Identifier(DuncansToolsConfig.getInstance().getLibrarianHighlight()))) &&
-                (EnchantmentHelper.getLevelFromNbt(enchant) >= DuncansToolsConfig.getInstance().getLibrarianHighlightMinLevel());
+        RegistryEntry<Enchantment> entry = EnchantmentHelper.getEnchantments(stack).getEnchantments().stream().findFirst().get();
+        Identifier bookEnchantmentId = entry.getKey().get().getValue();
+        int level = getBookLevel(entry, stack);
+
+        Identifier highlightId = Identifier.of(DuncansToolsConfig.getInstance().getLibrarianHighlight());
+        int minLevel = DuncansToolsConfig.getInstance().getLibrarianHighlightMinLevel();
+        return (bookEnchantmentId.equals(highlightId)) &&
+                (level >= minLevel);
 
     }
 }

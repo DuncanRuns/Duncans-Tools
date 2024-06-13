@@ -6,10 +6,12 @@ import me.duncanruns.duncanstools.librarianbookhelper.LibrarianBookHelper;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -21,8 +23,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 @Mixin(MerchantScreen.class)
 public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHandler> {
@@ -52,13 +53,12 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
             return;
         }
 
-        List<Text> enchantTexts = new ArrayList<>();
-        ItemStack.appendEnchantments(enchantTexts, EnchantedBookItem.getEnchantmentNbt(sellItem));
-        if (enchantTexts.isEmpty()) {
+        Optional<RegistryEntry<Enchantment>> enchantmentOpt = EnchantmentHelper.getEnchantments(sellItem).getEnchantments().stream().findFirst();
+        if (enchantmentOpt.isEmpty()) {
             return;
         }
 
-        MutableText text = Text.empty().append(enchantTexts.get(0).getString());
+        MutableText text = Text.empty().append(Enchantment.getName(enchantmentOpt.get(), LibrarianBookHelper.getBookLevel(enchantmentOpt.get(), sellItem)).getString());
 
         if (LibrarianBookHelper.isWantedBook(sellItem)) {
             text.styled(style -> style.withColor(Formatting.GREEN).withBold(true));

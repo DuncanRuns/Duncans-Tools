@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
+import me.duncanruns.duncanstools.librarianbookhelper.LibrarianBookHelper;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -11,22 +12,18 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
-import net.minecraft.command.argument.RegistryEntryArgumentType;
+import net.minecraft.command.argument.RegistryEntryReferenceArgumentType;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextContent;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -36,6 +33,7 @@ import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
 import net.minecraft.village.VillagerProfession;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class BookTradeFinder {
@@ -46,13 +44,13 @@ public class BookTradeFinder {
     private static int maxEmeralds;
 
     private static VillagerEntity villager;
-    private static String lastTradeListString = null;
+    private static Object lastTradeListString = null;
     private static int tradeListRepeats = 0;
 
     public static void initialize() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("findbooktrade")
-                    .then(ClientCommandManager.argument("enchantment", RegistryEntryArgumentType.registryEntry(registryAccess, RegistryKeys.ENCHANTMENT))
+                    .then(ClientCommandManager.argument("enchantment", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.ENCHANTMENT))
                             .then(ClientCommandManager.argument("minimum_level", IntegerArgumentType.integer(1, 5))
                                     .then(ClientCommandManager.argument("maximum_emeralds", IntegerArgumentType.integer(5, 64))
                                             .executes(BookTradeFinder::execute)
@@ -109,7 +107,7 @@ public class BookTradeFinder {
         if (offerList.isEmpty()) return; // Waiting for trades to appear
 
 
-        String tradeListString = offerList.toNbt().toString();
+        Object tradeListString = offerList.stream().map(tradeOffer -> Arrays.asList(tradeOffer.getFirstBuyItem().itemStack().getItem(), tradeOffer.getSecondBuyItem().map(i -> i.itemStack().getItem()).orElse(null), tradeOffer.getSellItem().getItem())).toList();
         if (Objects.equals(tradeListString, lastTradeListString)) {
             if (++tradeListRepeats >= 20) {
                 sendFeedback(client, "Stopped trade finding because the villager's trades are not changing.", true);
@@ -131,9 +129,10 @@ public class BookTradeFinder {
             ItemStack emeralds = tradeOffer.getOriginalFirstBuyItem();
             if (emeralds.getCount() > maxEmeralds) continue;
 
-            NbtCompound compound = EnchantedBookItem.getEnchantmentNbt(book).getCompound(0);
-            if (EnchantmentHelper.getLevelFromNbt(compound) < minLevel) continue;
-            if (!targetEnchantment.equals(EnchantmentHelper.getIdFromNbt(compound))) continue;
+            RegistryEntry<Enchantment> entry = EnchantmentHelper.getEnchantments(book).getEnchantments().stream().findFirst().get();
+
+            if (LibrarianBookHelper.getBookLevel(entry, book) < minLevel) continue;
+            if (!targetEnchantment.equals(entry.getKey().get().getValue())) continue;
 
             sendFeedback(client, "Enchanted Book Found!", false);
             finding = false;

@@ -64,7 +64,7 @@ public abstract class StonecutterScreenMixin extends HandledScreen<StonecutterSc
                 this.onMouseClick(null, 1, 0, SlotActionType.QUICK_MOVE);
                 // Throw results out
                 for (Slot slot : getScreenHandler().slots) {
-                    if (slot.getStack().hasNbt()) {
+                    if (!slot.getStack().getComponentChanges().isEmpty()) {
                         continue;
                     }
                     if (slot.getStack().getItem().equals(CraftRefill.lastSCRecipe.outputItem())) {
@@ -97,7 +97,7 @@ public abstract class StonecutterScreenMixin extends HandledScreen<StonecutterSc
         // Find item
         Slot bestSlot = null;
         for (Slot slot : getScreenHandler().slots) {
-            if (slot.getStack().hasNbt()) {
+            if (!slot.getStack().getComponentChanges().isEmpty()) {
                 continue;
             }
             if (slot.getStack().getItem().equals(CraftRefill.lastSCRecipe.inputItem())) {
