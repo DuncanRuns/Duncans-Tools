@@ -45,6 +45,8 @@ public class DuncansToolsConfig implements ModMenuApi {
     public boolean librarianBookHelperEnabled = false;
     @SerialEntry
     public boolean portalCoordsEnabled = false;
+    @SerialEntry
+    public boolean bedrockFinderEnabled = false;
 
     @SerialEntry
     public int clickerInterval = 30;
@@ -135,6 +137,14 @@ public class DuncansToolsConfig implements ModMenuApi {
                                                 .text(Text.of("Enables the portal coords module, which allows the usage of the /portal command and the relevant keybind which converts the player's coordinates to the other dimension's coordinates."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().portalCoordsEnabled, () -> getInstance().portalCoordsEnabled, val -> getInstance().portalCoordsEnabled = val)
+                                        .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
+                                        .build())
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(Text.of("Bedrock Finder"))
+                                        .description(OptionDescription.createBuilder()
+                                                .text(Text.of("Enables the bedrock finder module, which allows the usage of the /findbedrock command which finds a formation of bedrock."))
+                                                .build())
+                                        .binding(CONFIG_INSTANCE.defaults().bedrockFinderEnabled, () -> getInstance().bedrockFinderEnabled, val -> getInstance().bedrockFinderEnabled = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
                                         .build())
                                 .build())

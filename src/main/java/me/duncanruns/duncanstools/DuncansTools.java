@@ -1,6 +1,7 @@
 package me.duncanruns.duncanstools;
 
 import me.duncanruns.duncanstools.alignmentlocker.AlignmentLocker;
+import me.duncanruns.duncanstools.bedrockfinder.BedrockFinder;
 import me.duncanruns.duncanstools.bedrocklever.BedrockLever;
 import me.duncanruns.duncanstools.booktradefinder.BookTradeFinder;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
@@ -37,6 +38,7 @@ public class DuncansTools implements ClientModInitializer {
         AlignmentLocker.initialize();
         PortalCoords.initialize();
         BookTradeFinder.initialize();
+        BedrockFinder.initialize();
 
         KeyBinding configKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "duncanstools.key.openconfig",
