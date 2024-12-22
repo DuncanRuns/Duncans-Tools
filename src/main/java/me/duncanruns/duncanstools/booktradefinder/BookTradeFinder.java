@@ -146,7 +146,7 @@ public class BookTradeFinder {
     }
 
     private static void sendFeedback(MinecraftClient client, String message, boolean isError) {
-        client.player.sendMessage(Text.empty().append(message).styled(style -> style.withColor(isError ? Formatting.RED : Formatting.WHITE)));
+        client.player.sendMessage(Text.empty().append(message).styled(style -> style.withColor(isError ? Formatting.RED : Formatting.WHITE)), false);
     }
 
     private static int execute(CommandContext<FabricClientCommandSource> context) {

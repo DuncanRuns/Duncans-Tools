@@ -31,7 +31,7 @@ public class PortalCoords {
 
     public static int execute(World world, BlockPos pos, PlayerEntity player) {
         if (!moduleEnabled()) {
-            player.sendMessage(Text.of("The portal coords module is not enabled in the Duncan's Tools config!").copy().styled(style -> style.withColor(Formatting.RED)));
+            player.sendMessage(Text.of("The portal coords module is not enabled in the Duncan's Tools config!").copy().styled(style -> style.withColor(Formatting.RED)),false);
             return 0;
         }
 
@@ -43,7 +43,7 @@ public class PortalCoords {
         } else {
             isNether = false;
             if (!key.equals(DimensionTypes.OVERWORLD)) {
-                player.sendMessage(Text.of("Cannot get portal coordinates as you are not in the nether or the overworld!").copy().styled(style -> style.withColor(Formatting.RED)));
+                player.sendMessage(Text.of("Cannot get portal coordinates as you are not in the nether or the overworld!").copy().styled(style -> style.withColor(Formatting.RED)),false);
                 return 0;
             }
         }
@@ -91,7 +91,7 @@ public class PortalCoords {
         MutableText text = Text.literal("").append(thisDimension.append(String.format(": %d %d %d", portalPos.getX(), portalPos.getY(), portalPos.getZ())).styled(style -> style.withColor(Formatting.GRAY)))
                 .append(Text.literal("\n-> ").styled(style -> style.withColor(Formatting.DARK_PURPLE))).append(otherDimension.append(String.format(": %d %d %d", otherPortalPos.getX(), otherPortalPos.getY(), otherPortalPos.getZ())).styled(style -> style.withColor(isNether ? Formatting.GREEN : Formatting.RED)));
 
-        player.sendMessage(text);
+        player.sendMessage(text,false);
 
         return 1;
     }

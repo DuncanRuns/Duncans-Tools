@@ -24,7 +24,6 @@
   },
   "mixins": [
     "gamma-override.mixins.json",
-    "craft-refill.mixins.json",
     "farm-clicker.mixins.json",
     "alignment-locker.mixins.json",
     "librarian-book-helper.mixins.json"

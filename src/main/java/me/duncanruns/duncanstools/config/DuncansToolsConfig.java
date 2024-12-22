@@ -36,8 +36,6 @@ public class DuncansToolsConfig implements ModMenuApi {
     @SerialEntry
     public boolean bookTradeFinderEnabled = false;
     @SerialEntry
-    public boolean craftRefillEnabled = false;
-    @SerialEntry
     public boolean farmClickerEnabled = false;
     @SerialEntry
     public boolean gammaOverrideEnabled = false;
@@ -97,14 +95,6 @@ public class DuncansToolsConfig implements ModMenuApi {
                                                 .text(Text.of("Enables the trade finder module, which allows the usage of /findbooktrade which re-opens a new librarian's trade menu until the correct trades are found. Requires a mod which re-rolls the trades every time the menu of a new librarian is opened (such as Duncan's Tweaks)."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().bookTradeFinderEnabled, () -> getInstance().bookTradeFinderEnabled, val -> getInstance().bookTradeFinderEnabled = val)
-                                        .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
-                                        .build())
-                                .option(Option.<Boolean>createBuilder()
-                                        .name(Text.of("Craft Refill"))
-                                        .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Enables the craft refill module, which allows the player to refill a crafting table or stonecutter with the last selected recipe by pressing shift+space, similar to villager refilling. Also allows the usage of ctrl+shift+space to spam craft (works best with carpet's ctrlQCraftingFix)."))
-                                                .build())
-                                        .binding(CONFIG_INSTANCE.defaults().craftRefillEnabled, () -> getInstance().craftRefillEnabled, val -> getInstance().craftRefillEnabled = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
                                         .build())
                                 .option(Option.<Boolean>createBuilder()

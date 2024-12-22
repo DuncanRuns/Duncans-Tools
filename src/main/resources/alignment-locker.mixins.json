@@ -7,6 +7,6 @@
   },
   "client": [
     "EntityMixin",
-    "PlayerInventoryMixin"
+    "MouseMixin"
   ]
 }
