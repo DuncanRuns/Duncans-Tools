@@ -45,6 +45,8 @@ public class DuncansToolsConfig implements ModMenuApi {
     public boolean portalCoordsEnabled = false;
     @SerialEntry
     public boolean bedrockFinderEnabled = false;
+    @SerialEntry
+    public boolean spamCraftingEnabled = false;
 
     @SerialEntry
     public int clickerInterval = 30;
@@ -135,6 +137,14 @@ public class DuncansToolsConfig implements ModMenuApi {
                                                 .text(Text.of("Enables the bedrock finder module, which allows the usage of the /findbedrock command which finds a formation of bedrock."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().bedrockFinderEnabled, () -> getInstance().bedrockFinderEnabled, val -> getInstance().bedrockFinderEnabled = val)
+                                        .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
+                                        .build())
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(Text.of("Spam Crafting"))
+                                        .description(OptionDescription.createBuilder()
+                                                .text(Text.of("Enables the spam crafter module, which allows the usage of the spam crafting key."))
+                                                .build())
+                                        .binding(CONFIG_INSTANCE.defaults().spamCraftingEnabled, () -> getInstance().spamCraftingEnabled, val -> getInstance().spamCraftingEnabled = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
                                         .build())
                                 .build())
