@@ -87,7 +87,7 @@ public class BookTradeFinder {
             return;
         }
 
-        if (!villager.getVillagerData().getProfession().equals(VillagerProfession.LIBRARIAN)) {
+        if (!villager.getVillagerData().profession().equals(VillagerProfession.LIBRARIAN)) {
             sendFeedback(client, "Stopped trade finding because the villager is no longer a librarian.", true);
             finding = false;
             return;
@@ -167,7 +167,7 @@ public class BookTradeFinder {
             return 0;
         }
         villager = (VillagerEntity) entity;
-        if (!villager.getVillagerData().getProfession().equals(VillagerProfession.LIBRARIAN)) {
+        if (!villager.getVillagerData().profession().equals(VillagerProfession.LIBRARIAN)) {
             context.getSource().sendError(Text.of("You are not targetting a librarian!"));
             return 0;
         }

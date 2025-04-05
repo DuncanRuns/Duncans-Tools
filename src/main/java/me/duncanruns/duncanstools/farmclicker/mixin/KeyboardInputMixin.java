@@ -4,6 +4,7 @@ import me.duncanruns.duncanstools.farmclicker.FarmClicker;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.input.KeyboardInput;
 import net.minecraft.util.PlayerInput;
+import net.minecraft.util.math.Vec2f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,8 +17,7 @@ public abstract class KeyboardInputMixin extends Input {
     private void farmClicker_preventControls(CallbackInfo info) {
         if (FarmClicker.shouldPreventMovement()) {
             this.playerInput = new PlayerInput(false, false, false, false, this.playerInput.jump(), this.playerInput.sneak(), this.playerInput.sprint());
-            this.movementForward = 0.0f;
-            this.movementSideways = 0.0f;
+            this.movementVector = new Vec2f(0,0);
             info.cancel();
         }
     }

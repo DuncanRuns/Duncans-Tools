@@ -25,7 +25,9 @@ public class DuncansTools implements ClientModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public static void ding(MinecraftClient client) {
-        client.world.playSound(client.player.getX(), client.player.getY(), client.player.getZ(), SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1f, 1f, false);
+        assert client.world != null;
+        assert client.player != null;
+        client.world.playSoundClient(client.player.getX(), client.player.getY(), client.player.getZ(), SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1f, 1f, false);
     }
 
     @Override
