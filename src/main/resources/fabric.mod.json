@@ -27,7 +27,8 @@
     "farm-clicker.mixins.json",
     "alignment-locker.mixins.json",
     "librarian-book-helper.mixins.json",
-    "spam-crafting.mixins.json"
+    "spam-crafting.mixins.json",
+    "book-trade-finder.mixins.json"
   ],
   "accessWidener": "duncans-tools.accesswidener",
   "depends": {

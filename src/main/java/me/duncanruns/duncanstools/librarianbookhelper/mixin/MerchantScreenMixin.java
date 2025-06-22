@@ -1,11 +1,14 @@
 package me.duncanruns.duncanstools.librarianbookhelper.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import me.duncanruns.duncanstools.librarianbookhelper.LibrarianBookHelper;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
+import net.minecraft.client.gui.tooltip.HoveredTooltipPositioner;
+import net.minecraft.client.gui.tooltip.OrderedTextTooltipComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerInventory;
@@ -17,18 +20,24 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.village.TradeOffer;
+import net.minecraft.village.TradeOfferList;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Collections;
 import java.util.Optional;
 
 @Mixin(MerchantScreen.class)
 public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHandler> {
 
-    @Unique private boolean dinged = false;
+    @Shadow
+    private int indexStartOffset;
+    @Unique
+    private boolean dinged = false;
 
     public MerchantScreenMixin(MerchantScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -43,9 +52,8 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
         }
     }
 
-    // Not the most ideal place to mix into for this, but definitely the easiest since it gets given the trade offer and y value in the parameters.
-    @Inject(method = "renderArrow", at = @At("HEAD"))
-    private void librarianBookHelper_renderBookEnchant(DrawContext context, TradeOffer tradeOffer, int x, int y, CallbackInfo ci) {
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/MerchantScreen;renderArrow(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/village/TradeOffer;II)V"))
+    private void librarianBookHelper_renderBookEnchant(DrawContext context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci, @Local TradeOfferList tradeOffers, @Local TradeOffer tradeOffer) {
         if (!LibrarianBookHelper.moduleEnabled()) return;
 
         ItemStack sellItem = tradeOffer.getSellItem();
@@ -64,9 +72,12 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
             text.styled(style -> style.withColor(Formatting.GREEN).withBold(true));
         }
 
+        int i = tradeOffers.indexOf(tradeOffer);
+        int y = (this.height - this.backgroundHeight) / 2 + 39 + (20 * (i - this.indexStartOffset - 1));
+
         int textX = ((this.width - this.backgroundWidth) / 2) - textRenderer.getWidth(text);
 
-        context.drawTooltip(textRenderer, text, textX - 16, y + 17);
+        context.drawTooltipImmediately(textRenderer, Collections.singletonList(new OrderedTextTooltipComponent(text.asOrderedText())), textX - 16, y + 17, HoveredTooltipPositioner.INSTANCE, null);
     }
 
     @Unique

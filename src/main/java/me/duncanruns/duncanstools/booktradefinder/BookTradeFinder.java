@@ -87,7 +87,7 @@ public class BookTradeFinder {
             return;
         }
 
-        if (!villager.getVillagerData().profession().equals(VillagerProfession.LIBRARIAN)) {
+        if (!Objects.equals(villager.getVillagerData().profession().getKey().orElse(null), (VillagerProfession.LIBRARIAN))) {
             sendFeedback(client, "Stopped trade finding because the villager is no longer a librarian.", true);
             finding = false;
             return;
@@ -129,10 +129,11 @@ public class BookTradeFinder {
             ItemStack emeralds = tradeOffer.getOriginalFirstBuyItem();
             if (emeralds.getCount() > maxEmeralds) continue;
 
-            RegistryEntry<Enchantment> entry = EnchantmentHelper.getEnchantments(book).getEnchantments().stream().findFirst().get();
+            RegistryEntry<Enchantment> entry = EnchantmentHelper.getEnchantments(book).getEnchantments().stream().findFirst().orElse(null);
+            if (entry == null) continue;
 
             if (LibrarianBookHelper.getBookLevel(entry, book) < minLevel) continue;
-            if (!targetEnchantment.equals(entry.getKey().get().getValue())) continue;
+            if (!targetEnchantment.equals(entry.getKey().map(RegistryKey::getValue).orElse(null))) continue;
 
             sendFeedback(client, "Enchanted Book Found!", false);
             finding = false;
@@ -140,12 +141,12 @@ public class BookTradeFinder {
             return;
         }
 
-        client.getNetworkHandler().sendPacket(new CloseHandledScreenC2SPacket(merchantScreen.getScreenHandler().syncId));
-        client.setScreen(new FindingTradeScreen());
+        Objects.requireNonNull(client.getNetworkHandler()).sendPacket(new CloseHandledScreenC2SPacket(merchantScreen.getScreenHandler().syncId));
         clickVillager(client);
     }
 
     private static void sendFeedback(MinecraftClient client, String message, boolean isError) {
+        assert client.player != null;
         client.player.sendMessage(Text.empty().append(message).styled(style -> style.withColor(isError ? Formatting.RED : Formatting.WHITE)), false);
     }
 
@@ -157,7 +158,7 @@ public class BookTradeFinder {
 
         HitResult hitResult = MinecraftClient.getInstance().crosshairTarget;
         MinecraftClient client = context.getSource().getClient();
-        if (!hitResult.getType().equals(HitResult.Type.ENTITY)) {
+        if (hitResult == null || !hitResult.getType().equals(HitResult.Type.ENTITY)) {
             context.getSource().sendError(Text.of("You are not targetting a librarian!"));
             return 0;
         }
@@ -167,7 +168,7 @@ public class BookTradeFinder {
             return 0;
         }
         villager = (VillagerEntity) entity;
-        if (!villager.getVillagerData().profession().equals(VillagerProfession.LIBRARIAN)) {
+        if (!Objects.equals(villager.getVillagerData().profession().getKey().orElse(null), (VillagerProfession.LIBRARIAN))) {
             context.getSource().sendError(Text.of("You are not targetting a librarian!"));
             return 0;
         }
@@ -183,7 +184,6 @@ public class BookTradeFinder {
         lastTradeListString = null;
 
         context.getSource().sendFeedback(Text.of("Searching for enchantment..."));
-        client.setScreen(new FindingTradeScreen());
         clickVillager(client);
         return 1;
     }
