@@ -24,6 +24,7 @@ public class FarmClicker {
     private static Supplier<Boolean> checkFCMovementSupplier = null;
 
     private static int ticker = 0;
+    private static int clickerInterval = Integer.MAX_VALUE;
 
     private static boolean lockClicksToo = true;
 
@@ -46,21 +47,26 @@ public class FarmClicker {
         return moduleEnabled() && afkLock && lockClicksToo;
     }
 
-    private static void tick(MinecraftClient client) {
+    public static void tick(MinecraftClient client) {
         if (!moduleEnabled()) return;
+
+        if (clickerInterval != DuncansToolsConfig.getInstance().clickerInterval) {
+            ticker = 0;
+            clickerInterval = DuncansToolsConfig.getInstance().clickerInterval;
+        }
 
         if (afkLock) {
             if (client.player == null) {
                 afkLock = false;
                 return;
             }
-            ticker++;
-            while (ticker >= DuncansToolsConfig.getInstance().clickerInterval) {
-                ticker = 0;
+            if (!client.isIntegratedServerRunning()) ticker++;
+            while (ticker >= clickerInterval) {
+                ticker -= clickerInterval;
                 lockClicksToo = false;
                 if (DuncansToolsConfig.getInstance().clickerDoUse) {
                     try {
-                        ((MinecraftClientAccess) client).invokeDoItemUse();
+                        client.doItemUse();
                     } catch (Exception ignored) {
                     }
                 } else {
@@ -119,13 +125,7 @@ public class FarmClicker {
         });
 
         // Tick Events
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
-            tick(MinecraftClient.getInstance());
-        });
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (!client.isIntegratedServerRunning()) {
-                tick(client);
-            }
-        });
+        ServerTickEvents.END_SERVER_TICK.register(server -> ticker++);
+        ClientTickEvents.END_CLIENT_TICK.register(FarmClicker::tick);
     }
 }
