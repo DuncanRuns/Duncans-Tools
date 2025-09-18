@@ -1,5 +1,6 @@
 package me.duncanruns.duncanstools.portalcoords;
 
+import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -105,7 +106,7 @@ public class PortalCoords {
                 "duncanstools.key.portalcoords",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                "duncanstools.keycategory"
+                DuncansTools.KEY_CATEGORY
         ));
 
         ClientTickEvents.END_WORLD_TICK.register(world -> {

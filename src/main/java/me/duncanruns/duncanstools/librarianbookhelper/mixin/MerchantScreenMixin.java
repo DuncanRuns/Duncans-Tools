@@ -43,7 +43,7 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
         super(handler, inventory, title);
     }
 
-    @Inject(method = "render", at = @At("TAIL"))
+    @Inject(method = "renderMain", at = @At("TAIL"))
     private void librarianBookHelper_dingOnRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo info) {
         if (!LibrarianBookHelper.moduleEnabled()) return;
 
@@ -52,7 +52,7 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
         }
     }
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/MerchantScreen;renderArrow(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/village/TradeOffer;II)V"))
+    @Inject(method = "renderMain", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/MerchantScreen;renderArrow(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/village/TradeOffer;II)V"))
     private void librarianBookHelper_renderBookEnchant(DrawContext context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci, @Local TradeOfferList tradeOffers, @Local TradeOffer tradeOffer) {
         if (!LibrarianBookHelper.moduleEnabled()) return;
 

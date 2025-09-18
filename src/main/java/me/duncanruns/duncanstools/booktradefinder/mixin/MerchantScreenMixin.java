@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MerchantScreen.class)
 public abstract class MerchantScreenMixin {
-    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "renderMain", at = @At("HEAD"), cancellable = true)
     private void noScreenSpamWhenFinding(CallbackInfo info) {
         if (BookTradeFinder.moduleEnabled() && BookTradeFinder.finding) {
             info.cancel();

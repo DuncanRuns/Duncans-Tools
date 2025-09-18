@@ -1,5 +1,6 @@
 package me.duncanruns.duncanstools.bedrocklever;
 
+import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -24,7 +25,7 @@ public class BedrockLever {
                 "duncanstools.key.spamlever",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                "duncanstools.keycategory"
+                DuncansTools.KEY_CATEGORY
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

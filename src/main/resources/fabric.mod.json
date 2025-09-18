@@ -19,7 +19,7 @@
       "me.duncanruns.duncanstools.DuncansTools"
     ],
     "modmenu": [
-      "me.duncanruns.duncanstools.config.DuncansToolsConfig"
+      "me.duncanruns.duncanstools.config.ModMenuImpl"
     ]
   },
   "mixins": [

@@ -37,7 +37,7 @@ public abstract class RecipeBookScreenMixin<T extends AbstractRecipeScreenHandle
 
     @Inject(method = "handledScreenTick", at = @At("TAIL"))
     private void checkSpamCraft(CallbackInfo ci) {
-        if (SpamCrafting.moduleEnabled() && InputUtil.isKeyPressed(client.getWindow().getHandle(), SpamCrafting.keyBinding.boundKey.getCode())) {
+        if (SpamCrafting.moduleEnabled() && InputUtil.isKeyPressed(client.getWindow(), SpamCrafting.keyBinding.boundKey.getCode())) {
             // Maximum amount that can be crafted in a tick is a full inventory of an item for a single item recipe plus a stack of it already in the grid = 37 stacks.
             for (int i = 0; i < 37 && ((RecipeBookWidgetInt) this.recipeBook).duncanstools$reselect(true); i++) {
                 this.client.interactionManager.clickSlot(this.handler.syncId, 0, 1, SlotActionType.THROW, this.client.player);

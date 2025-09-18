@@ -15,6 +15,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 public class DuncansTools implements ClientModInitializer {
     public static final String MOD_ID = "duncans-tools";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static KeyBinding.Category KEY_CATEGORY =  KeyBinding.Category.create(Identifier.of(MOD_ID, "keys"));
 
     public static void ding(MinecraftClient client) {
         assert client.world != null;
@@ -47,7 +49,7 @@ public class DuncansTools implements ClientModInitializer {
                 "duncanstools.key.openconfig",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                "duncanstools.keycategory"
+                KEY_CATEGORY
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

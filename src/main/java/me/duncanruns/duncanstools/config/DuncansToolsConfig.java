@@ -1,7 +1,5 @@
 package me.duncanruns.duncanstools.config;
 
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.DoubleSliderControllerBuilder;
@@ -19,8 +17,7 @@ import net.minecraft.util.Identifier;
 
 import java.nio.file.Path;
 
-public class DuncansToolsConfig implements ModMenuApi {
-
+public class DuncansToolsConfig {
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve(DuncansTools.MOD_ID + ".json");
     //    private static final GsonConfigInstance<DuncansToolsConfig> CONFIG_INSTANCE = GsonConfigInstance.createBuilder(DuncansToolsConfig.class).setPath(CONFIG_PATH).build();
     private static final ConfigClassHandler<DuncansToolsConfig> CONFIG_INSTANCE = ConfigClassHandler.createBuilder(DuncansToolsConfig.class)
@@ -230,10 +227,5 @@ public class DuncansToolsConfig implements ModMenuApi {
             librarianHighlight = librarianHighlight.split(" ")[0];
             return 1;
         }
-    }
-
-    @Override
-    public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return DuncansToolsConfig::makeConfigScreen;
     }
 }

@@ -1,5 +1,6 @@
 package me.duncanruns.duncanstools.farmclicker;
 
+import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import me.duncanruns.duncanstools.farmclicker.mixin.MinecraftClientAccess;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -106,7 +107,7 @@ public class FarmClicker {
                 "duncanstools.key.toggleclicker",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                "duncanstools.keycategory"
+                DuncansTools.KEY_CATEGORY
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

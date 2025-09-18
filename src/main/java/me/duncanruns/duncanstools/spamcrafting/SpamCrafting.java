@@ -1,5 +1,6 @@
 package me.duncanruns.duncanstools.spamcrafting;
 
+import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
@@ -18,7 +19,7 @@ public class SpamCrafting {
                 "duncanstools.key.spamcraft",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                "duncanstools.keycategory"
+                DuncansTools.KEY_CATEGORY
         ));
     }
 }

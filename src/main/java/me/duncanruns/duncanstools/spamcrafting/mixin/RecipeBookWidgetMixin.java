@@ -14,9 +14,6 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(RecipeBookWidget.class)
 public abstract class RecipeBookWidgetMixin implements RecipeBookWidgetInt {
     @Shadow
-    protected abstract boolean select(RecipeResultCollection results, NetworkRecipeId recipeId);
-
-    @Shadow
     private @Nullable RecipeResultCollection selectedRecipeResults;
 
     @Shadow
