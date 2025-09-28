@@ -35,7 +35,7 @@ import java.util.Optional;
 public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHandler> {
 
     @Shadow
-    private int indexStartOffset;
+    int indexStartOffset;
     @Unique
     private boolean dinged = false;
 
@@ -85,6 +85,7 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
         if (dinged) return;
         dinged = true;
         if (DuncansToolsConfig.getInstance().librarianHighlightDing) {
+            assert client != null;
             DuncansTools.ding(client);
         }
     }

@@ -60,9 +60,7 @@ public class DuncansToolsConfig {
 
     public static void initialize() {
         CONFIG_INSTANCE.load();
-        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
-            CONFIG_INSTANCE.save();
-        });
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> CONFIG_INSTANCE.save());
     }
 
     public static Screen makeConfigScreen(Screen parent) {
@@ -180,12 +178,13 @@ public class DuncansToolsConfig {
                                 .option(Option.<String>createBuilder()
                                         .name(Text.of("Highlighted Enchantment ID"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("The enchantments with a matching ID will be highlighted in green and a sound will play when opening a trade GUI that contains a book with the matching ID. You can also specify a minimum level after a space.\n" +
-                                                        "\n" +
-                                                        "Examples:\n" +
-                                                        "minecraft:mending\n" +
-                                                        "fire_protection 3\n" +
-                                                        "minecraft:frost_walker 2"))
+                                                .text(Text.of("""
+                                                        The enchantments with a matching ID will be highlighted in green and a sound will play when opening a trade GUI that contains a book with the matching ID. You can also specify a minimum level after a space.
+                                                        
+                                                        Examples:
+                                                        minecraft:mending
+                                                        fire_protection 3
+                                                        minecraft:frost_walker 2"""))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().librarianHighlight, () -> CONFIG_INSTANCE.instance().librarianHighlight, val -> getInstance().librarianHighlight = val)
                                         .controller(StringControllerBuilder::create)

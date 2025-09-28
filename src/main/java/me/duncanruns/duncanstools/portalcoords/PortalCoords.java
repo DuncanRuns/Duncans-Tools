@@ -38,7 +38,7 @@ public class PortalCoords {
 
         boolean isNether;
 
-        RegistryKey<DimensionType> key = world.getDimensionEntry().getKey().get();
+        RegistryKey<DimensionType> key = world.getDimensionEntry().getKey().orElseThrow();
         if (key.equals(DimensionTypes.THE_NETHER)) {
             isNether = true;
         } else {

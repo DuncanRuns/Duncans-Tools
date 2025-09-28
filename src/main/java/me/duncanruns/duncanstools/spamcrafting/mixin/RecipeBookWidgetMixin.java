@@ -28,11 +28,11 @@ public abstract class RecipeBookWidgetMixin implements RecipeBookWidgetInt {
 
     @Override
     public boolean duncanstools$reselect(boolean craftAll) {
-        if (selectedRecipeId == null || this.selectedRecipeResults == null)
-            return false;
-        if (!this.selectedRecipeResults.isCraftable(selectedRecipeId) && selectedRecipeId.equals(this.selectedRecipeId))
-            return false;
+        if (selectedRecipeId == null || this.selectedRecipeResults == null) return false;
+        if (!this.selectedRecipeResults.isCraftable(selectedRecipeId)) return false;
         this.ghostRecipe.clear();
+        assert this.client.interactionManager != null;
+        assert this.client.player != null;
         this.client.interactionManager.clickRecipe(this.client.player.currentScreenHandler.syncId, selectedRecipeId, craftAll);
         return true;
     }

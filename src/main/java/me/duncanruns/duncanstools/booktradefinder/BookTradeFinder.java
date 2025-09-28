@@ -48,17 +48,15 @@ public class BookTradeFinder {
     private static int tradeListRepeats = 0;
 
     public static void initialize() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(ClientCommandManager.literal("findbooktrade")
-                    .then(ClientCommandManager.argument("enchantment", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.ENCHANTMENT))
-                            .then(ClientCommandManager.argument("minimum_level", IntegerArgumentType.integer(1, 5))
-                                    .then(ClientCommandManager.argument("maximum_emeralds", IntegerArgumentType.integer(5, 64))
-                                            .executes(BookTradeFinder::execute)
-                                    )
-                            )
-                    )
-            );
-        });
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("findbooktrade")
+                .then(ClientCommandManager.argument("enchantment", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.ENCHANTMENT))
+                        .then(ClientCommandManager.argument("minimum_level", IntegerArgumentType.integer(1, 5))
+                                .then(ClientCommandManager.argument("maximum_emeralds", IntegerArgumentType.integer(5, 64))
+                                        .executes(BookTradeFinder::execute)
+                                )
+                        )
+                )
+        ));
 
         ClientTickEvents.END_CLIENT_TICK.register(BookTradeFinder::tick);
     }
@@ -174,7 +172,7 @@ public class BookTradeFinder {
         }
         finding = true;
 
-        RegistryEntry.Reference<Enchantment> reference = context.getArgument("enchantment", RegistryEntry.Reference.class);
+        RegistryEntry.Reference<Enchantment> reference = getEnchantmentRegistryEntryReference(context);
         RegistryKey<Enchantment> registryKey = reference.registryKey();
         targetEnchantment = registryKey.getValue();
 
@@ -188,8 +186,14 @@ public class BookTradeFinder {
         return 1;
     }
 
+    @SuppressWarnings("unchecked")
+    private static RegistryEntry.Reference<Enchantment> getEnchantmentRegistryEntryReference(CommandContext<FabricClientCommandSource> context) {
+        return context.getArgument("enchantment", RegistryEntry.Reference.class);
+    }
+
     private static boolean isTargettingCorrectVillager() {
         HitResult hitResult = MinecraftClient.getInstance().crosshairTarget;
+        assert hitResult != null;
         if (!hitResult.getType().equals(HitResult.Type.ENTITY)) {
             return false;
         }
@@ -197,6 +201,7 @@ public class BookTradeFinder {
     }
 
     private static void clickVillager(MinecraftClient client) {
+        assert client.interactionManager != null;
         client.interactionManager.interactEntity(client.player, villager, Hand.MAIN_HAND);
     }
 }

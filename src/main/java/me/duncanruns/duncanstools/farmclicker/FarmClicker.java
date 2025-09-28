@@ -116,6 +116,7 @@ public class FarmClicker {
             if (keyBinding.isPressed() && !wasPressed) {
                 afkLock = !afkLock;
                 ticker = 0;
+                assert client.player != null;
                 if (afkLock) {
                     client.player.sendMessage(Text.translatable("duncanstools.clickerenabled"), true);
                 } else {

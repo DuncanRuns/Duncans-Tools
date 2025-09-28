@@ -7,9 +7,10 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(MinecraftClient.class)
 public interface MinecraftClientAccess {
-    @Invoker
+    @Invoker("doAttack")
+    @SuppressWarnings("UnusedReturnValue")
     boolean invokeDoAttack();
 
-    @Accessor
+    @Accessor("attackCooldown")
     void setAttackCooldown(int cooldown);
 }

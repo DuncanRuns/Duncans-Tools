@@ -34,8 +34,8 @@ public class LibrarianBookHelper {
 
     public static boolean isWantedBook(ItemStack stack) {
         if (stack.getItem() != Items.ENCHANTED_BOOK) return false;
-        RegistryEntry<Enchantment> entry = EnchantmentHelper.getEnchantments(stack).getEnchantments().stream().findFirst().get();
-        Identifier bookEnchantmentId = entry.getKey().get().getValue();
+        RegistryEntry<Enchantment> entry = EnchantmentHelper.getEnchantments(stack).getEnchantments().stream().findFirst().orElseThrow();
+        Identifier bookEnchantmentId = entry.getKey().orElseThrow().getValue();
         int level = getBookLevel(entry, stack);
 
         Identifier highlightId = Identifier.of(DuncansToolsConfig.getInstance().getLibrarianHighlight());

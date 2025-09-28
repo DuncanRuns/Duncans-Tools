@@ -49,6 +49,7 @@ public class AlignmentLocker {
             if (!AlignmentLocker.moduleEnabled()) return;
             if (lockKeyBinding.isPressed() && !lockKeyWasPressed) {
                 alignLock = !alignLock;
+                assert client.player != null;
                 if (alignLock) {
                     client.player.sendMessage(Text.translatable("duncanstools.alignmentlockenabled"), true);
                 } else {
