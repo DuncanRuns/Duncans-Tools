@@ -36,7 +36,7 @@ public abstract class GameOptionsMixin {
             @Override
             public Double getValue() {
                 double val = gamma.getValue();
-                if (DuncansToolsConfig.getInstance().gammaOverrideEnabled && val == 1d) {
+                if (DuncansToolsConfig.getInstance().gammaOverrideEnabled) {
                     return DuncansToolsConfig.getInstance().brightGamma;
                 }
                 return val;
