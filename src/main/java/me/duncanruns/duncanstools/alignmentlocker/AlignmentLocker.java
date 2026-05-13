@@ -3,15 +3,15 @@ package me.duncanruns.duncanstools.alignmentlocker;
 import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 public class AlignmentLocker {
-    public static KeyBinding lockKeyBinding;
+    public static KeyMapping lockKeyMapping;
     public static boolean alignLock = false;
     public static boolean lockKeyWasPressed;
 
@@ -19,7 +19,7 @@ public class AlignmentLocker {
         return DuncansToolsConfig.getInstance().alignmentLockerEnabled;
     }
 
-    public static void scrollWithBind(boolean isUp, PlayerEntity player) {
+    public static void scrollWithBind(boolean isUp, Player player) {
         DuncansToolsConfig config = DuncansToolsConfig.getInstance();
         if (isUp) {
             config.alignmentLockerSplit = config.alignmentLockerSplit * 2;
@@ -31,15 +31,15 @@ public class AlignmentLocker {
         } else if (config.alignmentLockerSplit > 64) {
             config.alignmentLockerSplit = 64;
         }
-        player.sendMessage(Text.translatable("duncanstools.setalignmentsplit", config.alignmentLockerSplit, 360.0 / config.alignmentLockerSplit), true);
+        player.sendOverlayMessage(Component.translatable("duncanstools.setalignmentsplit", config.alignmentLockerSplit, 360.0 / config.alignmentLockerSplit));
     }
 
     public static void initialize() {
 
         // Keybindings
-        lockKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        lockKeyMapping = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "duncanstools.key.togglealignmentlock",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
                 DuncansTools.KEY_CATEGORY
         ));
@@ -47,25 +47,25 @@ public class AlignmentLocker {
         // Tick Event
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (!AlignmentLocker.moduleEnabled()) return;
-            if (lockKeyBinding.isPressed() && !lockKeyWasPressed) {
+            if (lockKeyMapping.isDown() && !lockKeyWasPressed) {
                 alignLock = !alignLock;
                 assert client.player != null;
                 if (alignLock) {
-                    client.player.sendMessage(Text.translatable("duncanstools.alignmentlockenabled"), true);
+                    client.player.sendOverlayMessage(Component.translatable("duncanstools.alignmentlockenabled"));
                 } else {
-                    client.player.sendMessage(Text.translatable("duncanstools.alignmentlockdisabled"), true);
+                    client.player.sendOverlayMessage(Component.translatable("duncanstools.alignmentlockdisabled"));
                 }
             }
             if (alignLock) {
                 if (client.player != null) {
                     float i = 360.0f / DuncansToolsConfig.getInstance().alignmentLockerSplit;
-                    float newYaw = Math.round(client.player.getYaw() / i) * i;
-                    client.player.setYaw(newYaw);
+                    float newYaw = Math.round(client.player.getYRot() / i) * i;
+                    client.player.setYRot(newYaw);
                 } else {
                     alignLock = false;
                 }
             }
-            lockKeyWasPressed = lockKeyBinding.isPressed();
+            lockKeyWasPressed = lockKeyMapping.isDown();
         });
     }
 

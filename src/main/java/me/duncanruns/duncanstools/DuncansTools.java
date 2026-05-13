@@ -9,13 +9,13 @@ import me.duncanruns.duncanstools.portalcoords.PortalCoords;
 import me.duncanruns.duncanstools.spamcrafting.SpamCrafting;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +23,12 @@ import org.slf4j.LoggerFactory;
 public class DuncansTools implements ClientModInitializer {
     public static final String MOD_ID = "duncans-tools";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-    public static KeyBinding.Category KEY_CATEGORY =  KeyBinding.Category.create(Identifier.of(MOD_ID, "keys"));
+    public static KeyMapping.Category KEY_CATEGORY =  KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "keys"));
 
-    public static void ding(MinecraftClient client) {
-        assert client.world != null;
+    public static void ding(Minecraft client) {
+        assert client.level != null;
         assert client.player != null;
-        client.world.playSoundClient(client.player.getX(), client.player.getY(), client.player.getZ(), SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1f, 1f, false);
+        client.level.playLocalSound(client.player.getX(), client.player.getY(), client.player.getZ(), SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 1f, 1f, false);
     }
 
     @Override
@@ -45,9 +45,9 @@ public class DuncansTools implements ClientModInitializer {
 //        BedrockFinder.initialize();
         SpamCrafting.initialize();
 
-        KeyBinding configKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        KeyMapping configKeyMapping = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "duncanstools.key.openconfig",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
                 KEY_CATEGORY
         ));
@@ -56,8 +56,8 @@ public class DuncansTools implements ClientModInitializer {
             if (client.player == null) {
                 return;
             }
-            if (configKeyBinding.wasPressed()) {
-                client.setScreen(DuncansToolsConfig.makeConfigScreen(client.currentScreen));
+            if (configKeyMapping.consumeClick()) {
+                client.setScreen(DuncansToolsConfig.makeConfigScreen(client.screen));
             }
         });
     }

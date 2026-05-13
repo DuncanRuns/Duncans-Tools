@@ -1,25 +1,24 @@
 package me.duncanruns.duncanstools.portalcoords;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.dimension.DimensionTypes;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.dimension.DimensionType;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.function.UnaryOperator;
@@ -30,21 +29,21 @@ public class PortalCoords {
         return DuncansToolsConfig.getInstance().portalCoordsEnabled;
     }
 
-    public static int execute(World world, BlockPos pos, PlayerEntity player) {
+    public static int execute(Level world, BlockPos pos, LocalPlayer player) {
         if (!moduleEnabled()) {
-            player.sendMessage(Text.of("The portal coords module is not enabled in the Duncan's Tools config!").copy().styled(style -> style.withColor(Formatting.RED)),false);
+            player.sendSystemMessage(Component.literal("The portal coords module is not enabled in the Duncan's Tools config!").copy().withStyle(style -> style.withColor(ChatFormatting.RED)));
             return 0;
         }
 
         boolean isNether;
 
-        RegistryKey<DimensionType> key = world.getDimensionEntry().getKey().orElseThrow();
-        if (key.equals(DimensionTypes.THE_NETHER)) {
+        ResourceKey<DimensionType> key = world.dimensionTypeRegistration().unwrapKey().orElseThrow();
+        if (key.equals(BuiltinDimensionTypes.NETHER)) {
             isNether = true;
         } else {
             isNether = false;
-            if (!key.equals(DimensionTypes.OVERWORLD)) {
-                player.sendMessage(Text.of("Cannot get portal coordinates as you are not in the nether or the overworld!").copy().styled(style -> style.withColor(Formatting.RED)),false);
+            if (!key.equals(BuiltinDimensionTypes.OVERWORLD)) {
+                player.sendSystemMessage(Component.literal("Cannot get portal coordinates as you are not in the nether or the overworld!").copy().withStyle(style -> style.withColor(ChatFormatting.RED)));
                 return 0;
             }
         }
@@ -52,7 +51,7 @@ public class PortalCoords {
         BlockPos portalPos = pos;
 
         for (int i = 0; i <= 1; i++) {
-            BlockPos pos2 = pos.up(i);
+            BlockPos pos2 = pos.above(i);
             if (world.getBlockState(pos2).getBlock().equals(Blocks.NETHER_PORTAL)) {
                 portalPos = pos2;
                 break;
@@ -79,43 +78,43 @@ public class PortalCoords {
                 conversionType.apply(portalPos.getZ())
         );
 
-        MutableText thisDimension, otherDimension;
+        MutableComponent thisDimension, otherDimension;
         if (isNether) {
-            thisDimension = Text.translatable("advancements.nether.root.title");
-            otherDimension = Text.translatable("flat_world_preset.minecraft.overworld");
+            thisDimension = Component.translatable("advancements.nether.root.title");
+            otherDimension = Component.translatable("flat_world_preset.minecraft.overworld");
         } else {
-            thisDimension = Text.translatable("flat_world_preset.minecraft.overworld");
-            otherDimension = Text.translatable("advancements.nether.root.title");
+            thisDimension = Component.translatable("flat_world_preset.minecraft.overworld");
+            otherDimension = Component.translatable("advancements.nether.root.title");
         }
 
 
-        MutableText text = Text.literal("").append(thisDimension.append(String.format(": %d %d %d", portalPos.getX(), portalPos.getY(), portalPos.getZ())).styled(style -> style.withColor(Formatting.GRAY)))
-                .append(Text.literal("\n-> ").styled(style -> style.withColor(Formatting.DARK_PURPLE))).append(otherDimension.append(String.format(": %d %d %d", otherPortalPos.getX(), otherPortalPos.getY(), otherPortalPos.getZ())).styled(style -> style.withColor(isNether ? Formatting.GREEN : Formatting.RED)));
+        MutableComponent text = Component.literal("").append(thisDimension.append(String.format(": %d %d %d", portalPos.getX(), portalPos.getY(), portalPos.getZ())).withStyle(style -> style.withColor(ChatFormatting.GRAY)))
+                .append(Component.literal("\n-> ").withStyle(style -> style.withColor(ChatFormatting.DARK_PURPLE))).append(otherDimension.append(String.format(": %d %d %d", otherPortalPos.getX(), otherPortalPos.getY(), otherPortalPos.getZ())).withStyle(style -> style.withColor(isNether ? ChatFormatting.GREEN : ChatFormatting.RED)));
 
-        player.sendMessage(text,false);
+        player.sendSystemMessage(text);
 
         return 1;
     }
 
     public static void initialize() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
-                dispatcher.register(ClientCommandManager.literal("portal").executes(context -> PortalCoords.execute(context.getSource().getWorld(), BlockPos.ofFloored(context.getSource().getPosition()), context.getSource().getPlayer())))
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, _) ->
+                dispatcher.register(ClientCommands.literal("portal").executes(context -> PortalCoords.execute(context.getSource().getLevel(), BlockPos.containing(context.getSource().getPosition()), context.getSource().getPlayer())))
         );
 
-        final KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        final KeyMapping keyMapping = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "duncanstools.key.portalcoords",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
                 DuncansTools.KEY_CATEGORY
         ));
 
-        ClientTickEvents.END_WORLD_TICK.register(world -> {
-            if (keyBinding.wasPressed()) {
-                ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        ClientTickEvents.END_LEVEL_TICK.register(world -> {
+            if (keyMapping.consumeClick()) {
+                LocalPlayer player = Minecraft.getInstance().player;
                 if (player == null) {
                     return;
                 }
-                PortalCoords.execute(world, player.getBlockPos(), player);
+                PortalCoords.execute(world, player.blockPosition(), player);
             }
         });
     }

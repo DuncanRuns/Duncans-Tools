@@ -4,23 +4,23 @@ import com.llamalad7.mixinextras.sugar.Local;
 import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import me.duncanruns.duncanstools.librarianbookhelper.LibrarianBookHelper;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.screen.ingame.MerchantScreen;
-import net.minecraft.client.gui.tooltip.HoveredTooltipPositioner;
-import net.minecraft.client.gui.tooltip.OrderedTextTooltipComponent;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.screen.MerchantScreenHandler;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.village.TradeOffer;
-import net.minecraft.village.TradeOfferList;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.MerchantScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTextTooltip;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.Holder;
+import net.minecraft.world.inventory.MerchantMenu;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.item.trading.MerchantOffers;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -32,52 +32,52 @@ import java.util.Collections;
 import java.util.Optional;
 
 @Mixin(MerchantScreen.class)
-public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHandler> {
+public abstract class MerchantScreenMixin extends AbstractContainerScreen<MerchantMenu> {
 
     @Shadow
-    int indexStartOffset;
+    private int scrollOff;
     @Unique
     private boolean dinged = false;
 
-    public MerchantScreenMixin(MerchantScreenHandler handler, PlayerInventory inventory, Text title) {
+    public MerchantScreenMixin(MerchantMenu handler, Inventory inventory, MutableComponent title) {
         super(handler, inventory, title);
     }
 
-    @Inject(method = "renderMain", at = @At("TAIL"))
-    private void librarianBookHelper_dingOnRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo info) {
+    @Inject(method = "extractContents", at = @At("TAIL"))
+    private void librarianBookHelper_dingOnRender(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
         if (!LibrarianBookHelper.moduleEnabled()) return;
 
-        if (LibrarianBookHelper.hasWantedBook(handler.getRecipes())) {
+        if (LibrarianBookHelper.hasWantedBook(menu.getOffers())) {
             playDingIfNeverDinged();
         }
     }
 
-    @Inject(method = "renderMain", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/MerchantScreen;renderArrow(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/village/TradeOffer;II)V"))
-    private void librarianBookHelper_renderBookEnchant(DrawContext context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci, @Local TradeOfferList tradeOffers, @Local TradeOffer tradeOffer) {
+    @Inject(method = "extractContents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/MerchantScreen;extractButtonArrows(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/world/item/trading/MerchantOffer;II)V"))
+    private void librarianBookHelper_renderBookEnchant(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci, @Local MerchantOffers offers, @Local MerchantOffer offer) {
         if (!LibrarianBookHelper.moduleEnabled()) return;
 
-        ItemStack sellItem = tradeOffer.getSellItem();
+        ItemStack sellItem = offer.getResult();
         if (sellItem.getItem() != Items.ENCHANTED_BOOK) {
             return;
         }
 
-        Optional<RegistryEntry<Enchantment>> enchantmentOpt = EnchantmentHelper.getEnchantments(sellItem).getEnchantments().stream().findFirst();
+        Optional<Holder<Enchantment>> enchantmentOpt = EnchantmentHelper.getEnchantmentsForCrafting(sellItem).keySet().stream().findFirst();
         if (enchantmentOpt.isEmpty()) {
             return;
         }
 
-        MutableText text = Text.empty().append(Enchantment.getName(enchantmentOpt.get(), LibrarianBookHelper.getBookLevel(enchantmentOpt.get(), sellItem)).getString());
+        MutableComponent text = Component.empty().append(Enchantment.getFullname(enchantmentOpt.get(), LibrarianBookHelper.getBookLevel(enchantmentOpt.get(), sellItem)).getString());
 
         if (LibrarianBookHelper.isWantedBook(sellItem)) {
-            text.styled(style -> style.withColor(Formatting.GREEN).withBold(true));
+            text.withStyle(style -> style.withColor(ChatFormatting.GREEN).withBold(true));
         }
 
-        int i = tradeOffers.indexOf(tradeOffer);
-        int y = (this.height - this.backgroundHeight) / 2 + 39 + (20 * (i - this.indexStartOffset - 1));
+        int i = offers.indexOf(offer);
+        int y = (this.height - this.imageHeight) / 2 + 39 + (20 * (i - this.scrollOff - 1));
 
-        int textX = ((this.width - this.backgroundWidth) / 2) - textRenderer.getWidth(text);
+        int textX = ((this.width - this.imageHeight) / 2) - font.width(text);
 
-        context.drawTooltipImmediately(textRenderer, Collections.singletonList(new OrderedTextTooltipComponent(text.asOrderedText())), textX - 16, y + 17, HoveredTooltipPositioner.INSTANCE, null);
+        graphics.tooltip(font, Collections.singletonList(new ClientTextTooltip(text.getVisualOrderText())), textX - 16, y + 17, DefaultTooltipPositioner.INSTANCE, null);
     }
 
     @Unique
@@ -85,8 +85,7 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
         if (dinged) return;
         dinged = true;
         if (DuncansToolsConfig.getInstance().librarianHighlightDing) {
-            assert client != null;
-            DuncansTools.ding(client);
+            DuncansTools.ding(minecraft);
         }
     }
 

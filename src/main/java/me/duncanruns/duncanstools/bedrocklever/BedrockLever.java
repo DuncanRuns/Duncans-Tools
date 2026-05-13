@@ -1,17 +1,16 @@
 package me.duncanruns.duncanstools.bedrocklever;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.item.Items;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.BlockHitResult;
 import org.lwjgl.glfw.GLFW;
 
 public class BedrockLever {
@@ -21,9 +20,9 @@ public class BedrockLever {
     }
 
     public static void initialize() {
-        KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        KeyMapping keyMapping = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "duncanstools.key.spamlever",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
                 DuncansTools.KEY_CATEGORY
         ));
@@ -32,18 +31,18 @@ public class BedrockLever {
             if (!moduleEnabled()) return;
 
             // Check player and keybind
-            if (client.player == null || client.world == null || !keyBinding.isPressed())
+            if (client.player == null || client.level == null || !keyMapping.isDown())
                 return;
             // Check crosshair target exists and is a block
-            if (client.crosshairTarget == null || !client.crosshairTarget.getType().equals(HitResult.Type.BLOCK))
+            if (client.hitResult == null || !client.hitResult.getType().equals(BlockHitResult.Type.BLOCK))
                 return;
             // Check block is lever
-            Block targetedBlockType = client.world.getBlockState(((BlockHitResult) client.crosshairTarget).getBlockPos()).getBlock();
+            Block targetedBlockType = client.level.getBlockState(((BlockHitResult) client.hitResult).getBlockPos()).getBlock();
 
             boolean validUsage = targetedBlockType == Blocks.LEVER;
             boolean isPistonUsage = false;
             if (!validUsage && targetedBlockType == Blocks.OBSIDIAN) {
-                validUsage = client.player.getMainHandStack().isOf(Items.PISTON) || client.player.getMainHandStack().isOf(Items.STICKY_PISTON);
+                validUsage = client.player.getMainHandItem().is(Items.PISTON) || client.player.getMainHandItem().is(Items.STICKY_PISTON);
                 isPistonUsage = true;
             }
             if (!validUsage) {
@@ -51,11 +50,11 @@ public class BedrockLever {
             }
 
             if (isPistonUsage) {
-                client.doItemUse();
+                client.startUseItem();
             } else {
-                assert client.interactionManager != null;
+                assert client.gameMode != null;
                 for (int i = 0; i < 64; i++) {
-                    client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, (BlockHitResult) client.crosshairTarget);
+                    client.gameMode.useItemOn(client.player, InteractionHand.MAIN_HAND, (BlockHitResult) client.hitResult);
                 }
             }
         });

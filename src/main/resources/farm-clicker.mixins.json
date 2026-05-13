@@ -8,8 +8,8 @@
   "client": [
     "EntityMixin",
     "KeyboardInputMixin",
-    "MinecraftClientAccess",
-    "MinecraftClientMixin",
-    "MouseMixin"
+    "MinecraftAccess",
+    "MinecraftMixin",
+    "MouseHandlerMixin"
   ]
 }

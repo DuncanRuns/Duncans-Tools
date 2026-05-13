@@ -30,7 +30,7 @@
     "spam-crafting.mixins.json",
     "book-trade-finder.mixins.json"
   ],
-  "accessWidener": "duncans-tools.accesswidener",
+  "accessWidener": "duncans-tools.classtweaker",
   "depends": {
     "fabric-api": "*",
     "yet_another_config_lib_v3": "*"

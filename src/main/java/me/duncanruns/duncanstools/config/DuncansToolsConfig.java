@@ -11,9 +11,9 @@ import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import me.duncanruns.duncanstools.DuncansTools;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 import java.nio.file.Path;
 
@@ -21,7 +21,7 @@ public class DuncansToolsConfig {
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve(DuncansTools.MOD_ID + ".json");
     //    private static final GsonConfigInstance<DuncansToolsConfig> CONFIG_INSTANCE = GsonConfigInstance.createBuilder(DuncansToolsConfig.class).setPath(CONFIG_PATH).build();
     private static final ConfigClassHandler<DuncansToolsConfig> CONFIG_INSTANCE = ConfigClassHandler.createBuilder(DuncansToolsConfig.class)
-            .id(Identifier.of(DuncansTools.MOD_ID, "config"))
+            .id(Identifier.fromNamespaceAndPath(DuncansTools.MOD_ID, "config"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
                     .setPath(CONFIG_PATH)
                     .build()).build();
@@ -41,8 +41,6 @@ public class DuncansToolsConfig {
     @SerialEntry
     public boolean portalCoordsEnabled = false;
     @SerialEntry
-    public boolean bedrockFinderEnabled = false;
-    @SerialEntry
     public boolean spamCraftingEnabled = false;
 
     @SerialEntry
@@ -60,68 +58,68 @@ public class DuncansToolsConfig {
 
     public static void initialize() {
         CONFIG_INSTANCE.load();
-        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> CONFIG_INSTANCE.save());
+        ClientLifecycleEvents.CLIENT_STOPPING.register(_ -> CONFIG_INSTANCE.save());
     }
 
     public static Screen makeConfigScreen(Screen parent) {
         return YetAnotherConfigLib.createBuilder()
-                .title(Text.of("Duncan's Tools Config Page"))
+                .title(Component.literal("Duncan's Tools Config Page"))
                 .category(ConfigCategory.createBuilder()
-                        .name(Text.of("Duncan's Tools Config"))
+                        .name(Component.literal("Duncan's Tools Config"))
                         .group(OptionGroup.createBuilder()
-                                .name(Text.of("Modules"))
+                                .name(Component.literal("Modules"))
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.of("Alignment Locker"))
+                                        .name(Component.literal("Alignment Locker"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Enables the alignment locker module, which locks the player's yaw rotation to a set of angles."))
+                                                .text(Component.literal("Enables the alignment locker module, which locks the player's yaw rotation to a set of angles."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().alignmentLockerEnabled, () -> getInstance().alignmentLockerEnabled, val -> getInstance().alignmentLockerEnabled = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.of("Bedrock Lever"))
+                                        .name(Component.literal("Bedrock Lever"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Enables the bedrock lever module, which allows the player to spam a lever 64 times per tick, which lags the server-side enough to allow bedrock breaking."))
+                                                .text(Component.literal("Enables the bedrock lever module, which allows the player to spam a lever 64 times per tick, which lags the server-side enough to allow bedrock breaking."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().bedrockLeverEnabled, () -> getInstance().bedrockLeverEnabled, val -> getInstance().bedrockLeverEnabled = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.of("Book Trade Finder"))
+                                        .name(Component.literal("Book Trade Finder"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Enables the trade finder module, which allows the usage of /findbooktrade which re-opens a new librarian's trade menu until the correct trades are found. Requires a mod which re-rolls the trades every time the menu of a new librarian is opened (such as Duncan's Tweaks)."))
+                                                .text(Component.literal("Enables the trade finder module, which allows the usage of /findbooktrade which re-opens a new librarian's trade menu until the correct trades are found. Requires a mod which re-rolls the trades every time the menu of a new librarian is opened (such as Duncan's Tweaks)."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().bookTradeFinderEnabled, () -> getInstance().bookTradeFinderEnabled, val -> getInstance().bookTradeFinderEnabled = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.of("Farm Clicker"))
+                                        .name(Component.literal("Farm Clicker"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Enables the alignment locker module, which locks the player's yaw rotation to a set of angles."))
+                                                .text(Component.literal("Enables the alignment locker module, which locks the player's yaw rotation to a set of angles."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().farmClickerEnabled, () -> getInstance().farmClickerEnabled, val -> getInstance().farmClickerEnabled = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.of("Gamma Override"))
+                                        .name(Component.literal("Gamma Override"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Enables the gamma override module, which overrides the gamma level of vanilla's \"bright\" setting."))
+                                                .text(Component.literal("Enables the gamma override module, which overrides the gamma level of vanilla's \"bright\" setting."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().gammaOverrideEnabled, () -> getInstance().gammaOverrideEnabled, val -> getInstance().gammaOverrideEnabled = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.of("Librarian Book Helper"))
+                                        .name(Component.literal("Librarian Book Helper"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Enables the librarian book helper module, which overlays book enchantments in the villager trading GUI without having to hover over the book. It also lets you set a highlighted enchantment ID which causes a ding sound to be played when the correct enchantment appears, and will highlight the enchantment in bold green."))
+                                                .text(Component.literal("Enables the librarian book helper module, which overlays book enchantments in the villager trading GUI without having to hover over the book. It also lets you set a highlighted enchantment ID which causes a ding sound to be played when the correct enchantment appears, and will highlight the enchantment in bold green."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().librarianBookHelperEnabled, () -> getInstance().librarianBookHelperEnabled, val -> getInstance().librarianBookHelperEnabled = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.of("Portal Coords"))
+                                        .name(Component.literal("Portal Coords"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Enables the portal coords module, which allows the usage of the /portal command and the relevant keybind which converts the player's coordinates to the other dimension's coordinates."))
+                                                .text(Component.literal("Enables the portal coords module, which allows the usage of the /portal command and the relevant keybind which converts the player's coordinates to the other dimension's coordinates."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().portalCoordsEnabled, () -> getInstance().portalCoordsEnabled, val -> getInstance().portalCoordsEnabled = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
@@ -135,50 +133,50 @@ public class DuncansToolsConfig {
 //                                        .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
 //                                        .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.of("Spam Crafting"))
+                                        .name(Component.literal("Spam Crafting"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Enables the spam crafter module, which allows the usage of the spam crafting key."))
+                                                .text(Component.literal("Enables the spam crafter module, which allows the usage of the spam crafting key."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().spamCraftingEnabled, () -> getInstance().spamCraftingEnabled, val -> getInstance().spamCraftingEnabled = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())
                                         .build())
                                 .build())
                         .group(OptionGroup.createBuilder()
-                                .name(Text.of("Farm Clicker"))
+                                .name(Component.literal("Farm Clicker"))
                                 .option(Option.<Integer>createBuilder()
-                                        .name(Text.of("Interval"))
+                                        .name(Component.literal("Interval"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Sets the interval between clicks, measured in ticks. 20 ticks = 1 second."))
+                                                .text(Component.literal("Sets the interval between clicks, measured in ticks. 20 ticks = 1 second."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().clickerInterval, () -> getInstance().clickerInterval, val -> getInstance().clickerInterval = val)
                                         .controller(integerOption -> IntegerFieldControllerBuilder.create(integerOption).min(1))
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.of("Do Use Instead (Right Click)"))
+                                        .name(Component.literal("Do Use Instead (Right Click)"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Uses the item in hand or interacts with the targeted block as if you were right clicking instead of attacking/mining."))
+                                                .text(Component.literal("Uses the item in hand or interacts with the targeted block as if you were right clicking instead of attacking/mining."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().clickerDoUse, () -> getInstance().clickerDoUse, val -> getInstance().clickerDoUse = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
                                         .build())
                                 .build())
                         .group(OptionGroup.createBuilder()
-                                .name(Text.of("Gamma Allower"))
+                                .name(Component.literal("Gamma Allower"))
                                 .option(Option.<Double>createBuilder()
-                                        .name(Text.of("Bright Gamma"))
+                                        .name(Component.literal("Bright Gamma"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Specifies the actual gamma wanted when the in-game gamma is set to \"Bright\"."))
+                                                .text(Component.literal("Specifies the actual gamma wanted when the in-game gamma is set to \"Bright\"."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().brightGamma, () -> getInstance().brightGamma, val -> getInstance().brightGamma = val)
                                         .controller(opt -> DoubleSliderControllerBuilder.create(opt).range(1d, 20d).step(0.1d))
                                         .build())
                                 .build())
                         .group(OptionGroup.createBuilder()
-                                .name(Text.of("Librarian Book Helper"))
+                                .name(Component.literal("Librarian Book Helper"))
                                 .option(Option.<String>createBuilder()
-                                        .name(Text.of("Highlighted Enchantment ID"))
+                                        .name(Component.literal("Highlighted Enchantment ID"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("""
+                                                .text(Component.literal("""
                                                         The enchantments with a matching ID will be highlighted in green and a sound will play when opening a trade GUI that contains a book with the matching ID. You can also specify a minimum level after a space.
                                                         
                                                         Examples:
@@ -190,9 +188,9 @@ public class DuncansToolsConfig {
                                         .controller(StringControllerBuilder::create)
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(Text.of("Highlighted Enchantment Ding"))
+                                        .name(Component.literal("Highlighted Enchantment Ding"))
                                         .description(OptionDescription.createBuilder()
-                                                .text(Text.of("Will make a \"ding\" sound when opening the villager trading GUI if the offers include a book with the highlighted enchantment."))
+                                                .text(Component.literal("Will make a \"ding\" sound when opening the villager trading GUI if the offers include a book with the highlighted enchantment."))
                                                 .build())
                                         .binding(CONFIG_INSTANCE.defaults().librarianHighlightDing, () -> CONFIG_INSTANCE.instance().librarianHighlightDing, val -> getInstance().librarianHighlightDing = val)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).onOffFormatter())

@@ -5,33 +5,33 @@ import com.mojang.brigadier.context.CommandContext;
 import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import me.duncanruns.duncanstools.librarianbookhelper.LibrarianBookHelper;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.MerchantScreen;
-import net.minecraft.command.argument.RegistryEntryReferenceArgumentType;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.village.TradeOffer;
-import net.minecraft.village.TradeOfferList;
-import net.minecraft.village.VillagerProfession;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MerchantScreen;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.item.trading.MerchantOffers;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -43,15 +43,15 @@ public class BookTradeFinder {
     private static int minLevel;
     private static int maxEmeralds;
 
-    private static VillagerEntity villager;
+    private static Villager villager;
     private static Object lastTradeListString = null;
     private static int tradeListRepeats = 0;
 
     public static void initialize() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("findbooktrade")
-                .then(ClientCommandManager.argument("enchantment", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.ENCHANTMENT))
-                        .then(ClientCommandManager.argument("minimum_level", IntegerArgumentType.integer(1, 5))
-                                .then(ClientCommandManager.argument("maximum_emeralds", IntegerArgumentType.integer(5, 64))
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommands.literal("findbooktrade")
+                .then(ClientCommands.argument("enchantment", ResourceArgument.resource(registryAccess, Registries.ENCHANTMENT))
+                        .then(ClientCommands.argument("minimum_level", IntegerArgumentType.integer(1, 5))
+                                .then(ClientCommands.argument("maximum_emeralds", IntegerArgumentType.integer(5, 64))
                                         .executes(BookTradeFinder::execute)
                                 )
                         )
@@ -65,7 +65,7 @@ public class BookTradeFinder {
         return DuncansToolsConfig.getInstance().bookTradeFinderEnabled;
     }
 
-    private static void tick(MinecraftClient client) {
+    private static void tick(Minecraft client) {
         if (!moduleEnabled()) {
             finding = false;
             return;
@@ -73,7 +73,7 @@ public class BookTradeFinder {
 
         if (!finding) return;
 
-        if (client.currentScreen == null) {
+        if (client.screen == null) {
             sendFeedback(client, "Stopped trade finding because of manual cancellation.", true);
             finding = false;
             return;
@@ -85,33 +85,33 @@ public class BookTradeFinder {
             return;
         }
 
-        if (!Objects.equals(villager.getVillagerData().profession().getKey().orElse(null), (VillagerProfession.LIBRARIAN))) {
+        if (!Objects.equals(villager.getVillagerData().profession().unwrapKey().orElse(null), (VillagerProfession.LIBRARIAN))) {
             sendFeedback(client, "Stopped trade finding because the villager is no longer a librarian.", true);
             finding = false;
             return;
         }
 
-        Screen screen = client.currentScreen;
+        Screen screen = client.screen;
         if (!(screen instanceof MerchantScreen merchantScreen)) return;
 
-        if (merchantScreen.getScreenHandler().getExperience() > 0) {
+        if (merchantScreen.getMenu().getTraderXp() > 0) {
             sendFeedback(client, "Stopped trade finding because the villager's trades are locked.", true);
             finding = false;
-            merchantScreen.close();
+            merchantScreen.onClose();
             return;
         }
-        TradeOfferList offerList = merchantScreen.getScreenHandler().getRecipes();
+        MerchantOffers offerList = merchantScreen.getMenu().getOffers();
 
         if (offerList.isEmpty()) return; // Waiting for trades to appear
 
 
-        Object tradeListString = offerList.stream().map(tradeOffer -> Arrays.asList(tradeOffer.getFirstBuyItem().itemStack().getItem(), tradeOffer.getSecondBuyItem().map(i -> i.itemStack().getItem()).orElse(null), tradeOffer.getSellItem().getItem())).toList();
+        Object tradeListString = offerList.stream().map(tradeOffer -> Arrays.asList(tradeOffer.getItemCostA().itemStack().getItem(), tradeOffer.getItemCostB().map(i -> i.itemStack().getItem()).orElse(null), tradeOffer.getResult().getItem())).toList();
         if (Objects.equals(tradeListString, lastTradeListString)) {
             if (++tradeListRepeats >= 20) {
                 sendFeedback(client, "Stopped trade finding because the villager's trades are not changing.", true);
-                sendFeedback(client, "Trade finding requires a mod (such as Duncan's Tweaks) installed" + (client.isIntegratedServerRunning() ? "" : " on the server") + " which recycles trades every time you open the villager's menu.", true);
+                sendFeedback(client, "Trade finding requires a mod (such as Duncan's Tweaks) installed" + (client.hasSingleplayerServer() ? "" : " on the server") + " which recycles trades every time you open the villager's menu.", true);
                 finding = false;
-                merchantScreen.close();
+                merchantScreen.onClose();
                 return;
             }
         } else {
@@ -120,18 +120,18 @@ public class BookTradeFinder {
         lastTradeListString = tradeListString;
 
 
-        for (TradeOffer tradeOffer : offerList) {
-            ItemStack book = tradeOffer.getSellItem();
+        for (MerchantOffer tradeOffer : offerList) {
+            ItemStack book = tradeOffer.getResult();
             if (book.getItem() != Items.ENCHANTED_BOOK) continue;
 
-            ItemStack emeralds = tradeOffer.getOriginalFirstBuyItem();
+            ItemStack emeralds = tradeOffer.getCostA();
             if (emeralds.getCount() > maxEmeralds) continue;
 
-            RegistryEntry<Enchantment> entry = EnchantmentHelper.getEnchantments(book).getEnchantments().stream().findFirst().orElse(null);
+            Holder<Enchantment> entry = EnchantmentHelper.getEnchantmentsForCrafting(book).keySet().stream().findFirst().orElse(null);
             if (entry == null) continue;
 
             if (LibrarianBookHelper.getBookLevel(entry, book) < minLevel) continue;
-            if (!targetEnchantment.equals(entry.getKey().map(RegistryKey::getValue).orElse(null))) continue;
+            if (!targetEnchantment.equals(entry.unwrapKey().map(ResourceKey::identifier).orElse(null))) continue;
 
             sendFeedback(client, "Enchanted Book Found!", false);
             finding = false;
@@ -139,13 +139,13 @@ public class BookTradeFinder {
             return;
         }
 
-        Objects.requireNonNull(client.getNetworkHandler()).sendPacket(new CloseHandledScreenC2SPacket(merchantScreen.getScreenHandler().syncId));
+        Objects.requireNonNull(client.getConnection()).send(new ServerboundContainerClosePacket(merchantScreen.getMenu().containerId));
         clickVillager(client);
     }
 
-    private static void sendFeedback(MinecraftClient client, String message, boolean isError) {
+    private static void sendFeedback(Minecraft client, String message, boolean isError) {
         assert client.player != null;
-        client.player.sendMessage(Text.empty().append(message).styled(style -> style.withColor(isError ? Formatting.RED : Formatting.WHITE)), false);
+        client.player.sendSystemMessage(Component.empty().append(message).withStyle(style -> style.withColor(isError ? ChatFormatting.RED : ChatFormatting.WHITE)));
     }
 
     private static int execute(CommandContext<FabricClientCommandSource> context) {
@@ -154,54 +154,55 @@ public class BookTradeFinder {
             return 0;
         }
 
-        HitResult hitResult = MinecraftClient.getInstance().crosshairTarget;
-        MinecraftClient client = context.getSource().getClient();
-        if (hitResult == null || !hitResult.getType().equals(HitResult.Type.ENTITY)) {
-            context.getSource().sendError(Text.of("You are not targetting a librarian!"));
+        HitResult hitResult = Minecraft.getInstance().hitResult;
+        Minecraft client = context.getSource().getClient();
+        if (hitResult == null || !hitResult.getType().equals(EntityHitResult.Type.ENTITY)) {
+            context.getSource().sendError(Component.literal("You are not targetting a librarian!"));
             return 0;
         }
         Entity entity = ((EntityHitResult) hitResult).getEntity();
-        if (!(entity instanceof VillagerEntity)) {
-            context.getSource().sendError(Text.of("You are not targetting a librarian!"));
+        if (!(entity instanceof Villager)) {
+            context.getSource().sendError(Component.literal("You are not targetting a librarian!"));
             return 0;
         }
-        villager = (VillagerEntity) entity;
-        if (!Objects.equals(villager.getVillagerData().profession().getKey().orElse(null), (VillagerProfession.LIBRARIAN))) {
-            context.getSource().sendError(Text.of("You are not targetting a librarian!"));
+        villager = (Villager) entity;
+        if (!Objects.equals(villager.getVillagerData().profession().unwrapKey().orElse(null), (VillagerProfession.LIBRARIAN))) {
+            context.getSource().sendError(Component.literal("You are not targetting a librarian!"));
             return 0;
         }
         finding = true;
 
-        RegistryEntry.Reference<Enchantment> reference = getEnchantmentRegistryEntryReference(context);
-        RegistryKey<Enchantment> registryKey = reference.registryKey();
-        targetEnchantment = registryKey.getValue();
+        Holder.Reference<Enchantment> reference = getEnchantmentRegistryEntryReference(context);
+        ResourceKey<Enchantment> registryKey = reference.key();
+        targetEnchantment = registryKey.identifier();
 
         maxEmeralds = IntegerArgumentType.getInteger(context, "maximum_emeralds");
         minLevel = IntegerArgumentType.getInteger(context, "minimum_level");
         tradeListRepeats = 0;
         lastTradeListString = null;
 
-        context.getSource().sendFeedback(Text.of("Searching for enchantment..."));
+        context.getSource().sendFeedback(Component.literal("Searching for enchantment..."));
         clickVillager(client);
         return 1;
     }
 
     @SuppressWarnings("unchecked")
-    private static RegistryEntry.Reference<Enchantment> getEnchantmentRegistryEntryReference(CommandContext<FabricClientCommandSource> context) {
-        return context.getArgument("enchantment", RegistryEntry.Reference.class);
+    private static Holder.Reference<Enchantment> getEnchantmentRegistryEntryReference(CommandContext<FabricClientCommandSource> context) {
+        return context.getArgument("enchantment", Holder.Reference.class);
     }
 
     private static boolean isTargettingCorrectVillager() {
-        HitResult hitResult = MinecraftClient.getInstance().crosshairTarget;
+        HitResult hitResult = Minecraft.getInstance().hitResult;
         assert hitResult != null;
-        if (!hitResult.getType().equals(HitResult.Type.ENTITY)) {
+        if (!hitResult.getType().equals(EntityHitResult.Type.ENTITY)) {
             return false;
         }
         return ((EntityHitResult) hitResult).getEntity().equals(villager);
     }
 
-    private static void clickVillager(MinecraftClient client) {
-        assert client.interactionManager != null;
-        client.interactionManager.interactEntity(client.player, villager, Hand.MAIN_HAND);
+    private static void clickVillager(Minecraft client) {
+        assert client.gameMode != null;
+        assert client.player != null;
+        client.gameMode.interact(client.player, villager, (EntityHitResult) client.hitResult, InteractionHand.MAIN_HAND);
     }
 }
