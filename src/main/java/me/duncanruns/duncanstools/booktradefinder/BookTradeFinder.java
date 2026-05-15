@@ -33,11 +33,13 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 public class BookTradeFinder {
     public static boolean finding = false;
+    public static boolean cancel = false;
+
+    private static final Queue<MerchantScreen> toProcess = new LinkedList<>();
 
     private static Identifier targetEnchantment;
     private static int minLevel;
@@ -46,6 +48,8 @@ public class BookTradeFinder {
     private static Villager villager;
     private static Object lastTradeListString = null;
     private static int tradeListRepeats = 0;
+    private static int waiting = 0;
+    private static int attempts = 0;
 
     public static void initialize() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommands.literal("findbooktrade")
@@ -67,42 +71,54 @@ public class BookTradeFinder {
 
     private static void tick(Minecraft client) {
         if (!moduleEnabled()) {
-            finding = false;
+            stop(client, true);
             return;
         }
 
         if (!finding) return;
 
-        if (client.screen == null) {
+        if (cancel) {
             sendFeedback(client, "Stopped trade finding because of manual cancellation.", true);
-            finding = false;
+            stop(client, true);
             return;
         }
 
         if (!isTargettingCorrectVillager()) {
             sendFeedback(client, "Stopped trade finding because you are no longer looking at the villager.", true);
-            finding = false;
+            stop(client, true);
             return;
         }
 
         if (!Objects.equals(villager.getVillagerData().profession().unwrapKey().orElse(null), (VillagerProfession.LIBRARIAN))) {
             sendFeedback(client, "Stopped trade finding because the villager is no longer a librarian.", true);
-            finding = false;
+            stop(client, true);
             return;
         }
 
-        Screen screen = client.screen;
-        if (!(screen instanceof MerchantScreen merchantScreen)) return;
-
-        if (merchantScreen.getMenu().getTraderXp() > 0) {
-            sendFeedback(client, "Stopped trade finding because the villager's trades are locked.", true);
-            finding = false;
-            merchantScreen.onClose();
+        if (toProcess.isEmpty()) {
+            if (++waiting == 100) {
+                sendFeedback(client, "Stopped trade finding because cycling has stopped more than 5 seconds ago.", true);
+                stop(client, true);
+            }
             return;
         }
+        waiting = 0;
+        attempts++;
+        MerchantScreen merchantScreen = toProcess.poll();
         MerchantOffers offerList = merchantScreen.getMenu().getOffers();
 
-        if (offerList.isEmpty()) return; // Waiting for trades to appear
+        if (offerList.isEmpty()) {
+            // Waiting for trades to appear
+            toProcess.add(merchantScreen);
+            return;
+        }
+
+        assert merchantScreen != null;
+        if (merchantScreen.getMenu().getTraderXp() > 0) {
+            sendFeedback(client, "Stopped trade finding because the villager's trades are locked.", true);
+            stop(client, true);
+            return;
+        }
 
 
         Object tradeListString = offerList.stream().map(tradeOffer -> Arrays.asList(tradeOffer.getItemCostA().itemStack().getItem(), tradeOffer.getItemCostB().map(i -> i.itemStack().getItem()).orElse(null), tradeOffer.getResult().getItem())).toList();
@@ -110,8 +126,7 @@ public class BookTradeFinder {
             if (++tradeListRepeats >= 20) {
                 sendFeedback(client, "Stopped trade finding because the villager's trades are not changing.", true);
                 sendFeedback(client, "Trade finding requires a mod (such as Duncan's Tweaks) installed" + (client.hasSingleplayerServer() ? "" : " on the server") + " which recycles trades every time you open the villager's menu.", true);
-                finding = false;
-                merchantScreen.onClose();
+                stop(client, true);
                 return;
             }
         } else {
@@ -134,13 +149,27 @@ public class BookTradeFinder {
             if (!targetEnchantment.equals(entry.unwrapKey().map(ResourceKey::identifier).orElse(null))) continue;
 
             sendFeedback(client, "Enchanted Book Found!", false);
-            finding = false;
+            stop(client, false);
             DuncansTools.ding(client);
             return;
         }
 
         Objects.requireNonNull(client.getConnection()).send(new ServerboundContainerClosePacket(merchantScreen.getMenu().containerId));
         clickVillager(client);
+    }
+
+    private static void stop(Minecraft client, boolean closeMerchantScreen) {
+        finding = false;
+        cancel = false;
+        targetEnchantment = null;
+        villager = null;
+        lastTradeListString = null;
+        tradeListRepeats = 0;
+        waiting = 0;
+        attempts = 0;
+        if (closeMerchantScreen && client.screen instanceof MerchantScreen merchantScreen) {
+            merchantScreen.onClose();
+        }
     }
 
     private static void sendFeedback(Minecraft client, String message, boolean isError) {
@@ -171,6 +200,8 @@ public class BookTradeFinder {
             return 0;
         }
         finding = true;
+        cancel = false;
+        toProcess.clear();
 
         Holder.Reference<Enchantment> reference = getEnchantmentRegistryEntryReference(context);
         ResourceKey<Enchantment> registryKey = reference.key();
@@ -180,6 +211,8 @@ public class BookTradeFinder {
         minLevel = IntegerArgumentType.getInteger(context, "minimum_level");
         tradeListRepeats = 0;
         lastTradeListString = null;
+        attempts = 0;
+        waiting = 0;
 
         context.getSource().sendFeedback(Component.literal("Searching for enchantment..."));
         clickVillager(client);
@@ -204,5 +237,20 @@ public class BookTradeFinder {
         assert client.gameMode != null;
         assert client.player != null;
         client.gameMode.interact(client.player, villager, (EntityHitResult) client.hitResult, InteractionHand.MAIN_HAND);
+    }
+
+    public static void onOpenMerchantScreen(MerchantScreen merchantScreen) {
+        if (finding) {
+            toProcess.add(merchantScreen);
+        }
+    }
+
+    public static List<String> getDisplayText() {
+        if(!finding) return Collections.emptyList();
+        return Arrays.asList(
+                "Searching for book",
+                "Press escape to cancel",
+                "Trades checked: " + attempts
+        );
     }
 }
