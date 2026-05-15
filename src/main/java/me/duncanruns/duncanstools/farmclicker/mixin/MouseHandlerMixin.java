@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(MouseHandler.class)
 public class MouseHandlerMixin {
-    @WrapOperation(method = "onScroll",at= @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;setSelectedSlot(I)V"))
-    private void farmClicker_preventScroll(Inventory instance, int slot, Operation<Void> original){
+    @WrapOperation(method = "onScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;setSelectedSlot(I)V"))
+    private void farmClicker_preventScroll(Inventory instance, int slot, Operation<Void> original) {
         if (!FarmClicker.shouldPreventInteraction()) {
             original.call(instance, slot);
         }

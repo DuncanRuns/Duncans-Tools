@@ -17,7 +17,7 @@ public abstract class KeyboardInputMixin extends ClientInput {
     private void farmClicker_preventControls(CallbackInfo info) {
         if (FarmClicker.shouldPreventMovement()) {
             this.keyPresses = new Input(false, false, false, false, this.keyPresses.jump(), this.keyPresses.shift(), this.keyPresses.sprint());
-            this.moveVector = new Vec2(0,0);
+            this.moveVector = new Vec2(0, 0);
             info.cancel();
         }
     }

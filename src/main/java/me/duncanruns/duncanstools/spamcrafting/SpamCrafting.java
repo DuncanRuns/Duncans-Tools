@@ -1,10 +1,10 @@
 package me.duncanruns.duncanstools.spamcrafting;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import me.duncanruns.duncanstools.DuncansTools;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
-import com.mojang.blaze3d.platform.InputConstants;
 import org.lwjgl.glfw.GLFW;
 
 public class SpamCrafting {

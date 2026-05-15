@@ -11,7 +11,6 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.core.Holder;
@@ -246,7 +245,7 @@ public class BookTradeFinder {
     }
 
     public static List<String> getDisplayText() {
-        if(!finding) return Collections.emptyList();
+        if (!finding) return Collections.emptyList();
         return Arrays.asList(
                 "Searching for book",
                 "Press escape to cancel",

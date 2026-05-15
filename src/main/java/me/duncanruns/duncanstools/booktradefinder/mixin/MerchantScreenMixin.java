@@ -32,7 +32,7 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
         }
         info.cancel();
         List<String> displayText = BookTradeFinder.getDisplayText();
-        if(displayText.isEmpty()) return;
+        if (displayText.isEmpty()) return;
         int displayTextWidth = displayText.stream().mapToInt(font::width).max().orElse(0);
         int displayTextHeight = font.lineHeight * displayText.size();
         List<ClientTooltipComponent> tooltipList = displayText.stream()

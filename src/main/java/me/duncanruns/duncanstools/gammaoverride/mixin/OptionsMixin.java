@@ -2,9 +2,9 @@ package me.duncanruns.duncanstools.gammaoverride.mixin;
 
 import com.mojang.serialization.Codec;
 import me.duncanruns.duncanstools.config.DuncansToolsConfig;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.Options;
 import net.minecraft.client.OptionInstance;
+import net.minecraft.client.Options;
+import net.minecraft.client.gui.components.AbstractWidget;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
