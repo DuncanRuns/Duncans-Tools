@@ -112,7 +112,6 @@ public class BookTradeFinder {
             return;
         }
 
-        assert merchantScreen != null;
         if (merchantScreen.getMenu().getTraderXp() > 0) {
             sendFeedback(client, "Stopped trade finding because the villager's trades are locked.", true);
             stop(client, true);
