@@ -137,7 +137,7 @@ public class BookTradeFinder {
             ItemStack book = tradeOffer.getResult();
             if (book.getItem() != Items.ENCHANTED_BOOK) continue;
 
-            ItemStack emeralds = tradeOffer.getCostA();
+            ItemStack emeralds = tradeOffer.getBaseCostA();
             if (emeralds.getCount() > maxEmeralds) continue;
 
             Holder<Enchantment> entry = EnchantmentHelper.getEnchantmentsForCrafting(book).keySet().stream().findFirst().orElse(null);
