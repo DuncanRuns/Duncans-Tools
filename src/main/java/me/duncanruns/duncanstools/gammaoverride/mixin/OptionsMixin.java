@@ -13,8 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.function.Consumer;
-
 @Mixin(Options.class)
 public abstract class OptionsMixin {
     @Shadow
@@ -23,15 +21,20 @@ public abstract class OptionsMixin {
 
     @Inject(method = "gamma", at = @At("HEAD"), cancellable = true)
     private void gammaOverride_modifyGamma(CallbackInfoReturnable<OptionInstance<Double>> info) {
-        info.setReturnValue(new OptionInstance<Double>("", null, null, null, null, null, null) {
+        info.setReturnValue(new OptionInstance<>("", null, null, null, null, null, null) {
+            @Override
+            public @NonNull AbstractWidget createButton(@NonNull Options options) {
+                return gamma.createButton(options);
+            }
+
             @Override
             public @NonNull AbstractWidget createButton(@NonNull Options options, int x, int y, int width) {
                 return gamma.createButton(options, x, y, width);
             }
 
             @Override
-            public @NonNull AbstractWidget createButton(@NonNull Options options, int x, int y, int width, @NonNull Consumer<Double> changeCallback) {
-                return gamma.createButton(options, x, y, width, changeCallback);
+            public @NonNull AbstractWidget createButton(@NonNull Options options, int x, int y, int width, ValueUpdateListener<? super Double> onValueChanged) {
+                return gamma.createButton(options, x, y, width, onValueChanged);
             }
 
             @Override
@@ -59,7 +62,7 @@ public abstract class OptionsMixin {
             }
 
             @Override
-            public OptionInstance.@NonNull ValueSet<Double> values() {
+            public @NonNull ValueSet<Double> values() {
                 return gamma.values();
             }
         });

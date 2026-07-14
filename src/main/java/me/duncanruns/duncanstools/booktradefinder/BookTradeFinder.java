@@ -165,7 +165,7 @@ public class BookTradeFinder {
         tradeListRepeats = 0;
         waiting = 0;
         attempts = 0;
-        if (closeMerchantScreen && client.screen instanceof MerchantScreen merchantScreen) {
+        if (closeMerchantScreen && client.gui.screen() instanceof MerchantScreen merchantScreen) {
             merchantScreen.onClose();
         }
     }

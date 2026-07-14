@@ -8,7 +8,7 @@
   "client": [
     "KeyboardHandlerMixin",
     "MerchantScreenMixin",
-    "MinecraftMixin"
+    "GuiMixin"
   ],
   "mixins": [
   ]

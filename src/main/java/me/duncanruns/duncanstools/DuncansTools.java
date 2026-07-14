@@ -57,7 +57,7 @@ public class DuncansTools implements ClientModInitializer {
                 return;
             }
             if (configKeyMapping.consumeClick()) {
-                client.setScreen(DuncansToolsConfig.makeConfigScreen(client.screen));
+                client.gui.setScreen(DuncansToolsConfig.makeConfigScreen(client.gui.screen()));
             }
         });
     }
