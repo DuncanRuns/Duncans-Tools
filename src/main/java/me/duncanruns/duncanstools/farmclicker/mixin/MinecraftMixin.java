@@ -60,7 +60,7 @@ public abstract class MinecraftMixin {
     @SuppressWarnings({"ControlFlowWithEmptyBody", "StatementWithEmptyBody"})
     private void farmClicker_preventHotbar(CallbackInfo info) {
         if (FarmClicker.shouldPreventInteraction()) {
-            while (Arrays.stream(options.keyHotbarSlots).anyMatch(KeyMapping::isDown)) ;
+            while (Arrays.stream(options.keyHotbarSlots).anyMatch(KeyMapping::consumeClick)) ;
         }
     }
 }
