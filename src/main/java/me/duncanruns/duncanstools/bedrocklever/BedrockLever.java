@@ -11,7 +11,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
-import org.lwjgl.glfw.GLFW;
 
 public class BedrockLever {
 
@@ -22,8 +21,8 @@ public class BedrockLever {
     public static void initialize() {
         KeyMapping keyMapping = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "duncanstools.key.spamlever",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_UNKNOWN,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.UNKNOWN.getValue(),
                 DuncansTools.KEY_CATEGORY
         ));
 

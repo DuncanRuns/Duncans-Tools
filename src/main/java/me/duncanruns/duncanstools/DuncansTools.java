@@ -16,7 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +46,8 @@ public class DuncansTools implements ClientModInitializer {
 
         KeyMapping configKeyMapping = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "duncanstools.key.openconfig",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_UNKNOWN,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.UNKNOWN.getValue(),
                 KEY_CATEGORY
         ));
 

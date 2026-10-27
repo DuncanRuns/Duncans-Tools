@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import org.lwjgl.glfw.GLFW;
 
 public class AlignmentLocker {
     public static KeyMapping lockKeyMapping;
@@ -39,8 +38,8 @@ public class AlignmentLocker {
         // Keybindings
         lockKeyMapping = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "duncanstools.key.togglealignmentlock",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_UNKNOWN,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.UNKNOWN.getValue(),
                 DuncansTools.KEY_CATEGORY
         ));
 

@@ -41,6 +41,6 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
                 .map(ClientTextTooltip::new)
                 .map(t -> (ClientTooltipComponent) t)
                 .toList();
-        graphics.tooltip(font, tooltipList, (this.width - displayTextWidth) / 2, (height - displayTextHeight) / 2, DefaultTooltipPositioner.INSTANCE, null);
+        graphics.tooltip(font, tooltipList, (this.width - displayTextWidth) / 2, (height - displayTextHeight) / 2, DefaultTooltipPositioner.INSTANCE, null, false);
     }
 }

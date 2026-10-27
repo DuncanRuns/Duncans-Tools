@@ -19,7 +19,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.function.UnaryOperator;
 
@@ -103,8 +102,8 @@ public class PortalCoords {
 
         final KeyMapping keyMapping = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "duncanstools.key.portalcoords",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_UNKNOWN,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.UNKNOWN.getValue(),
                 DuncansTools.KEY_CATEGORY
         ));
 

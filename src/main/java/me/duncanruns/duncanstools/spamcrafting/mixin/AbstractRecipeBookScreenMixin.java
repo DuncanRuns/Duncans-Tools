@@ -33,7 +33,7 @@ public abstract class AbstractRecipeBookScreenMixin<T extends RecipeBookMenu>
 
     @Inject(method = "containerTick", at = @At("TAIL"))
     private void checkSpamCraft(CallbackInfo ci) {
-        if (SpamCrafting.moduleEnabled() && InputConstants.isKeyDown(minecraft.getWindow(), SpamCrafting.keyMapping.key.getValue())) {
+        if (SpamCrafting.moduleEnabled() && InputConstants.isKeyDown(SpamCrafting.keyMapping.key.getValue())) {
             // Maximum amount that can be crafted in a tick is a full inventory of an item for a single item recipe plus a stack of it already in the grid = 37 stacks.
             assert this.minecraft.gameMode != null;
             for (int i = 0; i < 37 && ((RecipeBookWidgetInt) this.recipeBookComponent).duncanstools$reselect(true); i++) {

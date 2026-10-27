@@ -77,7 +77,7 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
 
         int textX = ((this.width - this.imageWidth) / 2) - font.width(text);
 
-        graphics.tooltip(font, Collections.singletonList(new ClientTextTooltip(text.getVisualOrderText())), textX - 16, y + 17, DefaultTooltipPositioner.INSTANCE, null);
+        graphics.tooltip(font, Collections.singletonList(new ClientTextTooltip(text.getVisualOrderText())), textX - 16, y + 17, DefaultTooltipPositioner.INSTANCE, null, false);
     }
 
     @Unique
